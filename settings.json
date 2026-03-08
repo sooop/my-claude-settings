@@ -1,0 +1,22 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash /c/Users/sooop/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "typescript-lsp@local-lsp": true,
+    "css-lsp@local-lsp": true,
+    "json-lsp@local-lsp": true
+  },
+  "extraKnownMarketplaces": {
+    "local-lsp": {
+      "source": {
+        "source": "directory",
+        "path": "D:\\project\\my-lsps"
+      }
+    }
+  },
+  "language": "한국어",
+  "promptSuggestionEnabled": false,
+  "autoUpdatesChannel": "latest"
+}

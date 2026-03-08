@@ -1,0 +1,28 @@
+# 인증 정보 (절대 공유 금지)
+.credentials.json
+
+# 대화 히스토리
+history.jsonl
+
+# 캐시/임시 데이터
+cache/
+debug/
+telemetry/
+shell-snapshots/
+backups/
+file-history/
+
+# 세션 작업 데이터
+tasks/
+todos/
+
+# 사용자 지정 제외
+projects/
+plans/
+
+*.stackdump
+# 플러그인 런타임 데이터 (setup.md로 대체 문서화)
+plugins/installed_plugins.json
+plugins/install-counts-cache.json
+plugins/cache/
+plugins/marketplaces/
