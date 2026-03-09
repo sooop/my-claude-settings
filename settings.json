@@ -1,12 +1,12 @@
 {
+  "model": "haiku",
   "statusLine": {
     "type": "command",
     "command": "bash /c/Users/sooop/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "typescript-lsp@local-lsp": true,
-    "css-lsp@local-lsp": true,
-    "json-lsp@local-lsp": true
+    "json-lsp@local-lsp": true,
+    "typescript-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "local-lsp": {
