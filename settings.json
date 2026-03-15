@@ -1,22 +1,28 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(rg *)",
+      "Bash(grep:*)"
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "bash /c/Users/sooop/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "typescript-lsp@local-lsp": true,
-    "css-lsp@local-lsp": true,
-    "json-lsp@local-lsp": true
+    "typescript-lsp@claude-plugins-official": true,
+    "playground@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "local-lsp": {
       "source": {
         "source": "directory",
-        "path": "D:\\project\\my-lsps"
+        "path": "D:\\projects\\my-lsps"
       }
     }
   },
   "language": "한국어",
+  "effortLevel": "medium",
   "promptSuggestionEnabled": false,
   "autoUpdatesChannel": "latest"
 }

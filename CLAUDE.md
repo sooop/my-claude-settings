@@ -1,11 +1,24 @@
 CLAUDE.md
 
 
+## 계획 작성 시 요구사항 구체화
+
+프로젝트의 초기 계획을 작성할 때에는 요구사항과 의도를 분명하게 하는데 필요한 질문을 사용자에게 해야 합니다. 
+
+- 자명한 것에 대해 질문하지 않고, 
+- 사용자가 초기 지시나 요구 사항을 떠올릴 때 미처 생각하지 못했을 부분에 대해서 파고들어 심층적으로 질문하세요. 
+- 질문에 대한 답변에 의해 추가 질문이 발생한다면 계속 질문합니다.
+- 모든 궁금증에 대한 답이 갖추어졌을 때 계획을 작성하기 시작합니다. 
+
+
+
 ## CLI 도구 사용 지침
 
-- git-bash의 CLI 도구 사용
-- shell에 맞는 문법을 사용할 것: 예를 들어 Powershell은 heredoc을 사용할 수 없음
-- 가능한 경우 향상된 모던 CLI 대체 도구 사용: ag,bc,curl,duf,dust,f2,fd,ffmpeg,fselect,fzf,imagemagick,jq,lua,node,nu,pandoc,python,rg,sd,xsv
+- git-bash를 사용중이며, bash와 모던 CLI 도구를 사용할 수 있습니다.
+- **중요: find -> fd, sed -> sd, grep -> rg 로 모던 CLI도구를 우선 사용할 것**
+- 서브에이전트도 이 원칙을 동일하게 적용해야 합니다.
+- 사용가능한 CLI 도구들: ag,bc,curl,duf,dust,f2,fd,ffmpeg,fselect,fzf,imagemagick,jq,lua,node,nu,pandoc,python,rg,sd,xsv
+- **subagent들도 동일한 지침을 따라야 함**
 
 
 
@@ -16,3 +29,4 @@ CLAUDE.md
 - **복사 후에는 fd를 사용하여 파일이 목적지에 있는지 반드시 검증**
 - 이동 시에는 복사, 확인 후 원본을 삭제한다.
 - 수정하면서 복사해야하는 경우, 복사 후 사본을 편집한다.
+- **subagent들도 동일한 지침을 따라야 함**

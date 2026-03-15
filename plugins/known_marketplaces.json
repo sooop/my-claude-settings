@@ -5,14 +5,14 @@
       "repo": "anthropics/claude-plugins-official"
     },
     "installLocation": "C:\\Users\\sooop\\.claude\\plugins\\marketplaces\\claude-plugins-official",
-    "lastUpdated": "2026-03-08T10:11:45.831Z"
+    "lastUpdated": "2026-03-14T02:03:31.060Z"
   },
   "local-lsp": {
     "source": {
       "source": "directory",
-      "path": "D:\\project\\my-lsps"
+      "path": "D:\\projects\\my-lsps"
     },
-    "installLocation": "D:\\project\\my-lsps",
-    "lastUpdated": "2026-03-08T10:10:52.312Z"
+    "installLocation": "D:\\projects\\my-lsps",
+    "lastUpdated": "2026-03-08T23:58:30.825Z"
   }
 }
