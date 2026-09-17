@@ -5,14 +5,14 @@
       "repo": "anthropics/claude-plugins-official"
     },
     "installLocation": "C:\\Users\\sooop\\.claude\\plugins\\marketplaces\\claude-plugins-official",
-    "lastUpdated": "2026-03-08T10:11:45.831Z"
+    "lastUpdated": "2026-09-17T04:33:12.712Z"
   },
-  "local-lsp": {
+  "common-skill-harness": {
     "source": {
-      "source": "directory",
-      "path": "D:\\project\\my-lsps"
+      "source": "git",
+      "url": "http://gitlab.qxpress.net/infra/common-skill-harness.git"
     },
-    "installLocation": "D:\\project\\my-lsps",
-    "lastUpdated": "2026-03-08T10:10:52.312Z"
+    "installLocation": "C:\\Users\\sooop\\.claude\\plugins\\marketplaces\\common-skill-harness",
+    "lastUpdated": "2026-08-06T05:26:05.237Z"
   }
 }

@@ -26,3 +26,32 @@ plugins/installed_plugins.json
 plugins/install-counts-cache.json
 plugins/cache/
 plugins/marketplaces/
+
+# 세션/프로세스 런타임 상태 (재생성 가능, 민감 키 포함)
+.last-cleanup
+.last-update-result.json
+daemon.log
+daemon/
+jobs/
+state/
+sessions/
+plugins/.last_inuse_sweep
+
+# 캐시 및 원격에서 동기화되는 데이터 (로컬에서 재생성됨)
+mcp-needs-auth-cache.json
+stats-cache.json
+paste-cache/
+policy-limits.json
+policy-limits.json.stamp.json
+remote-settings.json
+plugins/plugin-catalog-cache.json
+plugins/synced/
+skills/synced/
+
+# 머신별 로컬 오버라이드 (공유 금지)
+settings.local.json
+**/settings.local.json
+
+# 백업 파일
+*.bak
+*.bak-*

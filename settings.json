@@ -1,22 +1,133 @@
 {
+  "env": {
+    "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Users\\sooop\\scoop\\apps\\git\\current\\bin\\bash.exe",
+    "CLAUDE_CODE_USE_POWERSHELL_TOOL": "0",
+    "EDITOR": "akelpad"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(curl:*)",
+      "Bash(do:*)",
+      "Bash(done:*)",
+      "Bash(echo:*)",
+      "Bash(fd:*)",
+      "Bash(findstr:*)",
+      "Bash(for:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(julia:*)",
+      "Bash(kill:*)",
+      "Bash(ls:*)",
+      "Bash(python:*)",
+      "Bash(rg:*)",
+      "Bash(sd:*)",
+      "Bash(sed:*)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist:*)",
+      "Bash(top:*)"
+    ],
+    "defaultMode": "auto",
+    "additionalDirectories": [
+      "~/.claude/plans"
+    ]
+  },
+  "model": "sonnet",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/bash-guard.sh",
+            "timeout": 10,
+            "statusMessage": "CLI 도구 가드 확인 중"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/start.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/stop.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "defaultShell": "bash",
   "statusLine": {
     "type": "command",
-    "command": "bash /c/Users/sooop/.claude/statusline-command.sh"
+    "command": "bash ~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "typescript-lsp@local-lsp": true,
-    "css-lsp@local-lsp": true,
-    "json-lsp@local-lsp": true
+    "typescript-lsp@claude-plugins-official": false,
+    "playground@claude-plugins-official": true,
+    "mssql-tools@common-skill-harness": true
   },
   "extraKnownMarketplaces": {
-    "local-lsp": {
+    "common-skill-harness": {
       "source": {
-        "source": "directory",
-        "path": "D:\\project\\my-lsps"
+        "source": "git",
+        "url": "http://gitlab.qxpress.net/infra/common-skill-harness.git"
       }
     }
   },
   "language": "한국어",
+  "effortLevel": "high",
   "promptSuggestionEnabled": false,
-  "autoUpdatesChannel": "latest"
+  "awaySummaryEnabled": false,
+  "askUserQuestionTimeout": "never",
+  "autoUpdatesChannel": "latest",
+  "skipWorkflowUsageWarning": true,
+  "theme": "light",
+  "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(rm -rf .next:*) in C:\\projects\\tx-front-react — destructive dev-cache rebuild the project's own CLAUDE.md requires confirming with the user first",
+      "Bash(npm run dev:*) and Bash(npm run dev:https:*) in C:\\projects\\tx-front-react — project convention reserves starting the dev server to the user"
+    ],
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: Not queryable via gh (origin host gitlab.qxpress.net not resolvable via gh API) — treating as private per shipped-default inference; no public signal found",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: main (default, per repo facts); protection status not queryable via gh for this host",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Source control**: The trusted repo (C:\\projects\\tx-front-react) and its remote origin (gitlab.qxpress.net/front/tx-front-react.git) only — no additional orgs configured",
+      "**Trusted internal domains**: issues.tracxlogis.com (Redmine issue tracker referenced in CLAUDE.md for this repo)",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: tx-backend-api (AI runtime API, referenced from this repo's skills); ../redmine-db-notify (Redmine API integration used by this repo)",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: .env, .env.local, .env.development, .env.production in this repo — credentials/config, not for sharing outside the project team; preserve exact handles when known",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (Next.js frontend, tx-front-react)",
+      "**Trusted repo**: C:\\projects\\tx-front-react and its remote origin (http://gitlab.qxpress.net/front/tx-front-react.git); visibility unconfirmed so treated as private-by-default — confidential material may be committed there but content ported from outside this session's repo is not its own work",
+      "**Org-specific CLIs**: None configured",
+      "routine under C:\\projects\\tx-front-react\\ prefix: fd/rg file search, npm/npx script runs (dev, build, lint, test, extract-i18n, validate-i18n), Redmine issue lookups via ../redmine-db-notify"
+    ]
+  }
 }
