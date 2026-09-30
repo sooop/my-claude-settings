@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PreToolUse(Bash) 가드 — CLAUDE.md "CLI 도구 사용 지침" 의 <CRITICAL> 항목을 강제한다.
-# 판정 실패 시에는 항상 통과시킨다(fail-open). 차단은 아래 5가지 경우에만.
+# 판정 실패 시에는 항상 통과시킨다(fail-open). 차단은 아래 3가지 경우에만(sd+코드파일 / 인자 없는 duckdb / 대화형 fzf).
 #
 # 설계 메모(2026-09-17 개정):
 #  - 프로세스 스폰을 jq 1회 + sed 1회로 줄였다. 이전 판은 매 호출마다 rg 를 최대 5회 띄워
@@ -54,30 +54,6 @@ fi
 if at_cmd_pos 'fzf' && ! [[ $SCAN =~ fzf[^|\;\&]*(--filter|[[:space:]]-f[[:space:]]) ]]; then
   deny "CLAUDE.md 금지: fzf 는 대화형이라 그냥 실행하면 입력 대기로 멈춘다.
 → 비대화형 모드만 사용:  fzf --filter '<query>'"
-fi
-
-# 4) find / grep 직접 호출 (git grep 은 허용)
-#    실측(597건): 차단 89건 중 81건이 실제 규칙 위반이었다 — 스타일 규칙이지만 강제력이 있다.
-if at_cmd_pos 'find'; then
-  deny "CLAUDE.md 금지: find 대신 fd 를 쓴다(추적 파일만 필요하면 git ls-files 가 더 빠르다).
-→ 예:  fd -e ts -E '**/node_modules/**' <패턴> <경로>"
-fi
-if at_cmd_pos 'grep' && ! [[ $SCAN =~ git[[:space:]]+grep ]]; then
-  deny "CLAUDE.md 금지: grep 대신 rg 를 쓴다.
-→ 예:  rg -n --glob '*.ts' '<패턴>' <경로>"
-fi
-
-# 5) nu 안에서 외부 find/grep 을 부르는 경우(`^find`)만 차단한다.
-#    nu 의 `find` 는 빌트인이라 `ls | find x` 는 정상 사용이며 막지 않는다.
-if [[ $SCAN =~ ${SEP}nu([[:space:]]|$) ]]; then
-  if [[ $CMD =~ \^find([[:space:]]|$) ]]; then
-    deny "CLAUDE.md 금지: nu 안에서도 외부 find 를 부르지 않는다(^find).
-→ nu 빌트인을 쓰거나(ls **/*.ts | where ...), fd 를 부를 것(^fd)."
-  fi
-  if [[ $CMD =~ \^grep([[:space:]]|$) ]]; then
-    deny "CLAUDE.md 금지: nu 안에서도 외부 grep 을 부르지 않는다(^grep).
-→ nu 빌트인 find/where 를 쓰거나 rg 를 부를 것(^rg)."
-  fi
 fi
 
 exit 0
