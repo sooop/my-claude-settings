@@ -1,6 +1,6 @@
 {
   "env": {
-    "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Users\\sooop\\scoop\\apps\\git\\current\\bin\\bash.exe",
+    "CLAUDE_CODE_GIT_BASH_PATH": "D:\\scoop\\apps\\git\\current\\bin\\bash.exe",
     "CLAUDE_CODE_USE_POWERSHELL_TOOL": "0",
     "EDITOR": "akelpad"
   },
@@ -78,16 +78,11 @@
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": false,
     "playground@claude-plugins-official": true,
-    "mssql-tools@common-skill-harness": true
+    "smartship@synced": false,
+    "txadmin@synced": false,
+    "txinquiry@synced": false
   },
-  "extraKnownMarketplaces": {
-    "common-skill-harness": {
-      "source": {
-        "source": "git",
-        "url": "http://gitlab.qxpress.net/infra/common-skill-harness.git"
-      }
-    }
-  },
+  "extraKnownMarketplaces": {},
   "language": "한국어",
   "effortLevel": "high",
   "modelSettings": {
