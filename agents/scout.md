@@ -4,6 +4,7 @@ description: "판단이 섞이지 않은 수집·추출 전용 에이전트(haik
 tools: Read, Grep, Glob, Bash
 model: haiku
 effort: low
+skills: cli-tools
 color: green
 ---
 

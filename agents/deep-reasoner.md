@@ -4,6 +4,7 @@ description: "심화 분석 에이전트(opus, high effort). 다른 에이전트
 tools: Read, Grep, Glob, Bash
 model: opus
 effort: high
+skills: cli-tools
 color: red
 ---
 

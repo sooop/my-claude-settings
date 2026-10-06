@@ -33,6 +33,10 @@
     ]
   },
   "model": "opusplan",
+  "skillOverrides": {
+    "react-porting-guide": "off",
+    "redmine-issue": "off"
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -43,6 +47,16 @@
             "command": "~/.claude/hooks/bash-guard.sh",
             "timeout": 10,
             "statusMessage": "CLI 도구 가드 확인 중"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/agent-guard.sh",
+            "timeout": 10
           }
         ]
       }
@@ -65,6 +79,17 @@
           {
             "type": "command",
             "command": "~/.claude/hooks/stop.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/session-env.sh"
           }
         ]
       }
@@ -98,7 +123,7 @@
   "askUserQuestionTimeout": "never",
   "autoUpdatesChannel": "latest",
   "skipWorkflowUsageWarning": true,
-  "theme": "light",
+  "theme": "dark",
   "skipAutoPermissionPrompt": true,
   "autoMode": {
     "soft_deny": [

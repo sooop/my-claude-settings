@@ -51,4 +51,24 @@ if at_cmd_pos 'fzf' && ! [[ $SCAN =~ fzf[^|\;\&]*(--filter|[[:space:]]-f[[:space
 → 비대화형 모드만 사용:  fzf --filter '<query>'"
 fi
 
+# 4) fd -x sh -c '...' — Windows 에서 백슬래시 경로가 재파싱돼 전 파일이 실패하고 "0건"으로 오인된다
+if [[ $SCAN =~ ${SEP}fd[[:space:]][^|\;\&]*-x[[:space:]]+(sh|bash)[[:space:]]+-c ]]; then
+  deny "CLAUDE.md 금지: fd -x sh -c 는 Windows 에서 경로가 뭉개져 전 파일이 실패하고 '0건'으로 오인된다.
+→ 배치 실행 fd -X, 또는 nu 한 프로세스로 처리할 것."
+fi
+
+# 5) 개발 서버·.next 재생성 — 사용자가 dev 서버를 띄워 둔 채 작업하므로 확인(ask)을 요구한다
+ask() {
+  local ports; ports=$(netstat -ano 2>/dev/null | tr -d '\r' | grep -E 'LISTENING' | grep -oE ':(30[0-9]{2})[[:space:]]' | tr -d ': ' | sort -u | tr '\n' ' ')
+  jq -nc --arg r "CLAUDE.md: $1 (3000번대 LISTEN 포트: ${ports:-없음}). 실행해도 될까요?" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"ask",permissionDecisionReason:$r}}'
+  exit 0
+}
+if at_cmd_pos '(npm|pnpm|yarn)[[:space:]]+(run[[:space:]]+)?build' || at_cmd_pos '(npx[[:space:]]+)?next[[:space:]]+build' \
+   || [[ $SCAN =~ ${SEP}rm[[:space:]][^|\;\&]*\.next ]]; then
+  ask ".next 를 재생성/삭제하는 명령은 실행 중인 dev 서버의 매니페스트를 깨뜨린다"
+fi
+if at_cmd_pos '(npm|pnpm|yarn)[[:space:]]+(run[[:space:]]+)?dev(:[a-z]+)?' || at_cmd_pos '(npx[[:space:]]+)?next[[:space:]]+dev'; then
+  [[ $SCAN =~ (-p|--port)[[:space:]=]*[0-9] ]] || ask "개발 서버는 사용자가 직접 관리한다(이미 떠 있으면 그 서버를 쓸 것)"
+fi
+
 exit 0
