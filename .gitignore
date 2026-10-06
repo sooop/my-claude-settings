@@ -56,3 +56,8 @@ settings.local.json
 # 백업 파일
 *.bak
 *.bak-*
+
+# 자동 갱신되는 플러그인 메타데이터 / 세션 환경 (머신별, 타임스탬프만 변동)
+plugins/known_marketplaces.json
+plugins/plugin-directory-cache-v2.json
+session-env/
