@@ -4,6 +4,7 @@ description: "기본 작업 에이전트(sonnet, medium effort). 코드 읽기�
 tools: Read, Grep, Glob, Bash, Edit, Write, NotebookEdit
 model: sonnet
 effort: medium
+skills: cli-tools
 color: blue
 ---
 

@@ -1,6 +1,6 @@
 {
   "env": {
-    "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Users\\sooop\\scoop\\apps\\git\\current\\bin\\bash.exe",
+    "CLAUDE_CODE_GIT_BASH_PATH": "D:\\scoop\\apps\\git\\current\\bin\\bash.exe",
     "CLAUDE_CODE_USE_POWERSHELL_TOOL": "0",
     "EDITOR": "akelpad"
   },
@@ -33,6 +33,10 @@
     ]
   },
   "model": "opusplan",
+  "skillOverrides": {
+    "react-porting-guide": "off",
+    "redmine-issue": "off"
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -43,6 +47,16 @@
             "command": "~/.claude/hooks/bash-guard.sh",
             "timeout": 10,
             "statusMessage": "CLI 도구 가드 확인 중"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/agent-guard.sh",
+            "timeout": 10
           }
         ]
       }
@@ -68,6 +82,17 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/session-env.sh"
+          }
+        ]
+      }
     ]
   },
   "defaultShell": "bash",
@@ -77,7 +102,7 @@
   },
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": false,
-    "playground@claude-plugins-official": true,
+    "playground@claude-plugins-official": false,
     "mssql-tools@common-skill-harness": true
   },
   "extraKnownMarketplaces": {
@@ -103,7 +128,7 @@
   "askUserQuestionTimeout": "never",
   "autoUpdatesChannel": "latest",
   "skipWorkflowUsageWarning": true,
-  "theme": "light",
+  "theme": "dark",
   "skipAutoPermissionPrompt": true,
   "autoMode": {
     "soft_deny": [

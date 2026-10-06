@@ -4,6 +4,7 @@ description: "검증·반증 전용 에이전트(sonnet, high effort). 다른 �
 tools: Read, Grep, Glob, Bash
 model: sonnet
 effort: high
+skills: cli-tools
 color: yellow
 ---
 
