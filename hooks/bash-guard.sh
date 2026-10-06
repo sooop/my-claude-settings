@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PreToolUse(Bash) 가드 — CLAUDE.md "CLI 도구 사용 지침" 의 <CRITICAL> 항목을 강제한다.
-# 판정 실패 시에는 항상 통과시킨다(fail-open). 차단은 아래 3가지 경우에만(sd+코드파일 / 인자 없는 duckdb / 대화형 fzf).
+# 판정 실패 시에는 항상 통과시킨다(fail-open). 차단은 아래 2가지 경우에만(인자 없는 duckdb / 대화형 fzf).
 #
 # 설계 메모(2026-09-17 개정):
 #  - 프로세스 스폰을 jq 1회 + sed 1회로 줄였다. 이전 판은 매 호출마다 rg 를 최대 5회 띄워
@@ -37,12 +37,7 @@ at_cmd_pos() {
   [ -n "$RAW" ] && [[ $RAW =~ $SEP$1([[:space:]]|$) ]]
 }
 
-# 1) sd 를 코드 파일에 사용 — 유일하게 비가역 피해를 막는 규칙
-if at_cmd_pos 'sd' && [[ $CMD =~ \.(ts|tsx|cs|js|jsx|mjs|cjs|vue)([^a-zA-Z0-9]|$) || $CMD =~ (-e|--extension)[[:space:]]+(ts|tsx|cs|js|jsx|mjs|cjs|vue)([^a-zA-Z0-9]|$) ]]; then
-  deny "CLAUDE.md 금지: sd 를 코드 파일(.ts/.tsx/.cs 등)에 쓰지 않는다. 주석/문자열을 파괴하고 멀티라인 호출을 놓친다.
-→ 코드 치환은 ast-grep 을 쓸 것:  ast-grep -p '<pattern>' -r '<rewrite>' -l ts -U <경로>
-→ 정말 sd 가 필요하면 명령 끝에 '# guard-off' 를 붙일 것."
-fi
+# 1) (삭제됨 2026-10-06) sd 를 코드 파일에 쓰는 것을 막던 규칙 — 사용자 결정으로 제거
 
 # 2) 인자 없는 duckdb (REPL 진입 → 세션 hang)
 if at_cmd_pos 'duckdb' && ! [[ $SCAN =~ duckdb[^|\;\&]*(-c|-f|-cmd|--help|--version|\<) ]]; then
