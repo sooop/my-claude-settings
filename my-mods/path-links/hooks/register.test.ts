@@ -3,11 +3,12 @@ import {
   DEFAULT_EXTS,
   buildByName,
   buildEditorArgv,
-  findInIndex,
-  fromHref,
+  findEditor,
+  findInIndex,  fromHref,
   linkify,
-  parseExts,
-  resolveRel,
+  parseExtraPath,
+  scoopShimDirs,
+  parseExts,  resolveRel,
   toToolMarkdown,
   toolText,
   type LinkCfg,
@@ -136,4 +137,25 @@ test('편집기 실행 인자: cmd start 를 거치고, 줄 인자는 줄 번호
   expect(buildEditorArgv(ed, '', '-l{line}', 'C:\p\a.md', '7')).toEqual([
     'cmd.exe', '/c', 'start', '', ed, '-l7', 'C:\p\a.md',
   ])
+})
+
+test('parseExtraPath: session-env.sh 의 EXTRA_PATH 를 Windows 폴더로 푼다', () => {
+  const sh = "#!/usr/bin/env bash\nEXTRA_PATH='/d/scoop/shims:/c/Python/Python315:/c/Program Files/nodejs'\n"
+  expect(parseExtraPath(sh)).toEqual(['D:\\scoop\\shims', 'C:\\Python\\Python315', 'C:\\Program Files\\nodejs'])
+  expect(parseExtraPath('echo hi')).toEqual([])
+})
+
+test('scoopShimDirs: SCOOP → USERPROFILE\\scoop → D: → C: 순서', () => {
+  expect(scoopShimDirs('E:\\tools\\scoop\\', 'C:\\Users\\a')).toEqual([
+    'E:\\tools\\scoop\\shims', 'C:\\Users\\a\\scoop\\shims', 'D:\\scoop\\shims', 'C:\\scoop\\shims',
+  ])
+  expect(scoopShimDirs()).toEqual(['D:\\scoop\\shims', 'C:\\scoop\\shims'])
+})
+
+test('findEditor: EXTRA_PATH 폴더 중 notepad3.exe 가 있는 첫 곳', async () => {
+  const dirs = ['D:\\scoop\\shims', 'C:\\Python\\Python315']
+  expect(await findEditor(dirs, async p => p === 'C:\\Python\\Python315\\notepad3.exe')).toBe(
+    'C:\\Python\\Python315\\notepad3.exe'
+  )
+  expect(await findEditor(dirs, async () => false)).toBeUndefined()
 })
