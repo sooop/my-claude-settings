@@ -1,6 +1,6 @@
 {
   "env": {
-    "CLAUDE_CODE_GIT_BASH_PATH": "D:\\scoop\\apps\\git\\current\\bin\\bash.exe",
+    "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Users\\sooop\\scoop\\apps\\git\\current\\bin\\bash.exe",
     "CLAUDE_CODE_USE_POWERSHELL_TOOL": "0",
     "EDITOR": "akelpad"
   },
