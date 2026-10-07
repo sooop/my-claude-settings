@@ -103,13 +103,20 @@
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": false,
     "playground@claude-plugins-official": false,
-    "mssql-tools@common-skill-harness": true
+    "mssql-tools@common-skill-harness": true,
+    "path-links@sooop-mods": true
   },
   "extraKnownMarketplaces": {
     "common-skill-harness": {
       "source": {
         "source": "git",
         "url": "http://gitlab.qxpress.net/infra/common-skill-harness.git"
+      }
+    },
+    "sooop-mods": {
+      "source": {
+        "source": "directory",
+        "path": "C:\\Users\\sooop\\.claude\\my-mods"
       }
     }
   },
@@ -128,7 +135,7 @@
   "askUserQuestionTimeout": "never",
   "autoUpdatesChannel": "latest",
   "skipWorkflowUsageWarning": true,
-  "theme": "dark",
+  "theme": "light",
   "skipAutoPermissionPrompt": true,
   "autoMode": {
     "soft_deny": [
