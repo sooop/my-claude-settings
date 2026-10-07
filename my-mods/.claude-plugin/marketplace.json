@@ -1,0 +1,8 @@
+{
+  "name": "sooop-mods",
+  "description": "sooop 개인 mod 모음",
+  "owner": { "name": "sooop" },
+  "plugins": [
+    { "name": "path-links", "source": "./path-links", "description": "파일 경로/파일명을 notepad3 링크로" }
+  ]
+}
