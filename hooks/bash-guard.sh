@@ -8,7 +8,8 @@
 #  - 매칭 전에 인용부호 안 내용을 지운다. 이전 판은 도구 이름이 *데이터로만* 등장해도 막아
 #    `echo "| grep 금지" >> NOTES.md` 나 `rg -n "; find " docs/` 가 차단됐다.
 #  - 줄바꿈도 명령 구분자로 본다(여러 줄 명령의 2번째 줄에서 시작하는 위반을 놓치지 않는다).
-export PATH="$PATH:/c/Users/sooop/scoop/shims"
+# 외장 도구 PATH 는 session-env.sh 가 정본 — 여기서 경로를 중복 정의하지 않는다.
+source "$(dirname "${BASH_SOURCE[0]}")/session-env.sh" 2>/dev/null
 
 CMD=$(jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
 [ -z "$CMD" ] && exit 0

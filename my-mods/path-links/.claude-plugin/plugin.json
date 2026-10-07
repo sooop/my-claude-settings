@@ -3,7 +3,7 @@
   "version": "0.4.0",
   "description": "답변·도구 결과 속 파일 경로/파일명을 클릭 가능한 링크로 바꾸고 notepad3로 연다",
   "userConfig": {
-    "editorPath": { "type": "string", "title": "편집기 실행 파일 경로", "description": "링크를 클릭하면 이 프로그램으로 파일을 엽니다 (notepad3, AkelPad 등)", "default": "C:\\Users\\sooop\\scoop\\shims\\notepad3.exe" },
+    "editorPath": { "type": "string", "title": "편집기 실행 파일 경로", "description": "링크를 클릭하면 이 프로그램으로 파일을 엽니다 (notepad3, AkelPad 등). 비워 두면 hooks/session-env.sh 의 EXTRA_PATH 에서 notepad3.exe 를 찾습니다", "default": "" },
     "editorArgs": { "type": "string", "title": "편집기 공통 인자", "description": "파일 경로 앞에 붙는 인자(공백 구분). notepad3 기본값: /n /o (새 창, 맨 위 유지)", "default": "/n /o" },
     "lineArgs": { "type": "string", "title": "줄 이동 인자", "description": "줄 번호가 있을 때만 추가되는 인자. {line}·{col} 자리표시자 사용. notepad3 기본값: /g {line},{col}", "default": "/g {line},{col}" },
     "extensions": { "type": "string", "title": "링크 대상 확장자", "description": "상대경로·파일명을 링크로 만들 확장자(쉼표 구분). 절대경로는 확장자와 무관하게 링크됩니다", "default": "md,markdown,txt,csv,tsv,json,jsonc,yaml,yml,toml,ini,cfg,conf,env,xml,html,htm,css,scss,js,jsx,mjs,cjs,ts,tsx,mts,cts,py,sh,bash,ps1,bat,cmd,sql,log,java,kt,cs,go,rs,rb,php,c,cpp,h,hpp,vue,svelte,gradle,properties,lock" },
