@@ -5,7 +5,7 @@ const EDITOR_EXE = 'notepad3.exe'
 // 찾지 못했을 때의 마지막 수단 — start 가 프로세스 PATH 로 풀어 본다.
 const DEFAULT_EDITOR = EDITOR_EXE
 
-// session-env.sh 의 `EXTRA_PATH='/d/scoop/shims:/c/...'` → Windows 폴더 목록 (`D:\scoop\shims`, ...)
+// session-env.sh 의 `EXTRA_PATH='/c/Python/...:/c/...'`(scoop 제외 정적 경로) → Windows 폴더 목록 (`C:\Python\Python315`, ...)
 export const parseExtraPath = (shText: string): string[] => {
   const m = /^EXTRA_PATH=(['"])(.*?)\1/m.exec(shText)
   if (!m) return []
@@ -17,6 +17,12 @@ export const parseExtraPath = (shText: string): string[] => {
       return w ? `${w[1]!.toUpperCase()}:\\${(w[2] ?? '').split('/').join('\\')}` : d
     })
 }
+
+// scoop shims 후보 — session-env.sh 의 탐지 순서와 같다: $SCOOP → %USERPROFILE%\scoop → D:\scoop → C:\scoop
+export const scoopShimDirs = (scoop?: string, userProfile?: string): string[] =>
+  [scoop, userProfile ? `${userProfile}\\scoop` : undefined, 'D:\\scoop', 'C:\\scoop']
+    .filter((d): d is string => !!d)
+    .map(d => `${d.replace(/[\\/]+$/, '')}\\shims`)
 
 // EXTRA_PATH 폴더들 중 EDITOR_EXE 가 실제로 있는 첫 경로
 export const findEditor = async (
@@ -318,7 +324,8 @@ export const register: Register = (on, options) => {
         const cfgDir =
           (await $.env.get('CLAUDE_CONFIG_DIR')) ?? `${(await $.env.get('USERPROFILE')) ?? ''}\\.claude`
         const sh = await $.fs.read(`${cfgDir}\\hooks\\session-env.sh`)
-        const found = await findEditor(parseExtraPath(sh), p => $.fs.exists(p))
+        const scoopDirs = scoopShimDirs(await $.env.get('SCOOP'), await $.env.get('USERPROFILE'))
+        const found = await findEditor([...scoopDirs, ...parseExtraPath(sh)], p => $.fs.exists(p))
         if (found) st.editor = found
       } catch {
         // 못 읽으면 DEFAULT_EDITOR 로 둔다
