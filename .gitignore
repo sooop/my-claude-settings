@@ -61,3 +61,6 @@ settings.local.json
 plugins/known_marketplaces.json
 plugins/plugin-directory-cache-v2.json
 session-env/
+
+# 플러그인 개발용 hot-reload 작업 디렉터리
+dev-mods/

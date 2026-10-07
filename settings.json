@@ -105,9 +105,17 @@
     "playground@claude-plugins-official": true,
     "smartship@synced": false,
     "txadmin@synced": false,
-    "txinquiry@synced": false
+    "txinquiry@synced": false,
+    "path-links@sooop-mods": true
   },
-  "extraKnownMarketplaces": {},
+  "extraKnownMarketplaces": {
+    "sooop-mods": {
+      "source": {
+        "source": "directory",
+        "path": "C:\\Users\\sooop\\.claude\\my-mods"
+      }
+    }
+  },
   "language": "한국어",
   "effortLevel": "high",
   "modelSettings": {
