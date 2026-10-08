@@ -1,0 +1,9 @@
+{
+  "name": "sooop-mods",
+  "description": "sooop 개인 mod 모음",
+  "owner": { "name": "sooop" },
+  "plugins": [
+    { "name": "path-links", "source": "./path-links", "description": "파일 경로/파일명을 notepad3 링크로" },
+    { "name": "table-copy", "source": "./table-copy", "description": "응답의 표를 TSV/CSV로 클립보드에 복사" }
+  ]
+}

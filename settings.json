@@ -105,9 +105,18 @@
     "playground@claude-plugins-official": true,
     "smartship@synced": false,
     "txadmin@synced": false,
-    "txinquiry@synced": false
+    "txinquiry@synced": false,
+    "path-links@sooop-mods": true,
+    "table-copy@sooop-mods": true
   },
-  "extraKnownMarketplaces": {},
+  "extraKnownMarketplaces": {
+    "sooop-mods": {
+      "source": {
+        "source": "directory",
+        "path": "C:\\Users\\sooop\\.claude\\my-mods"
+      }
+    }
+  },
   "language": "한국어",
   "effortLevel": "high",
   "modelSettings": {
@@ -157,5 +166,12 @@
       "**Org-specific CLIs**: None configured",
       "routine under C:\\projects\\tx-front-react\\ prefix: fd/rg file search, npm/npx script runs (dev, build, lint, test, extract-i18n, validate-i18n), Redmine issue lookups via ../redmine-db-notify"
     ]
+  },
+  "pluginConfigs": {
+    "table-copy@sooop-mods": {
+      "options": {
+        "format": "tsv"
+      }
+    }
   }
 }
