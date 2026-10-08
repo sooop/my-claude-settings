@@ -152,3 +152,28 @@ export async function uniqueName(name: string, isTaken: (candidate: string) => P
   }
   return `${stem} (${Date.now()})${ext}`
 }
+
+const SENSITIVE_DIRS = ['.ssh', '.aws', '.gnupg', '.kube', '.azure', '.docker']
+const SENSITIVE_NAMES = [
+  /^\.env(\..*)?$/,
+  /^\.(npmrc|netrc|pgpass|git-credentials|pypirc)$/,
+  /^id_(rsa|dsa|ecdsa|ed25519)(\.pub)?$/,
+  /\.(pem|key|pfx|p12|jks|keystore|kdbx|ppk)$/,
+  /^(credentials?|secrets?)(\..*)?$/,
+  /^settings\.local\.json$/,
+  /^\.credentials\.json$/,
+]
+
+/** tg_send 로 보내면 안 되는 민감 파일이면 이유를, 아니면 undefined. 경로 문자열만 보며 심볼릭 링크는 따라가지 않는다. */
+export function blockedReason(path: string, isResolved = false): string | undefined {
+  const parts = path.replace(/[\\]/g, '/').toLowerCase().split('/').filter(p => p !== '' && p !== '.')
+  const name = parts[parts.length - 1] ?? ''
+  const dir = parts.slice(0, -1).find(p => SENSITIVE_DIRS.includes(p))
+  if (dir !== undefined) {
+    return `민감 폴더(${dir}) 안의 파일`
+  }
+  if (!isResolved && parts.includes('..')) {
+    return "경로에 '..' 가 있어 판별할 수 없음 (절대 경로로 다시 지정)"
+  }
+  return SENSITIVE_NAMES.some(re => re.test(name)) ? `민감 파일명(${name})` : undefined
+}
