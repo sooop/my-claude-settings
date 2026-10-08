@@ -106,7 +106,8 @@
     "smartship@synced": false,
     "txadmin@synced": false,
     "txinquiry@synced": false,
-    "path-links@sooop-mods": true
+    "path-links@sooop-mods": true,
+    "table-copy@sooop-mods": true
   },
   "extraKnownMarketplaces": {
     "sooop-mods": {
@@ -165,5 +166,12 @@
       "**Org-specific CLIs**: None configured",
       "routine under C:\\projects\\tx-front-react\\ prefix: fd/rg file search, npm/npx script runs (dev, build, lint, test, extract-i18n, validate-i18n), Redmine issue lookups via ../redmine-db-notify"
     ]
+  },
+  "pluginConfigs": {
+    "table-copy@sooop-mods": {
+      "options": {
+        "format": "tsv"
+      }
+    }
   }
 }
