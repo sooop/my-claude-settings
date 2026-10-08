@@ -1,6 +1,6 @@
 ---
 name: worker
-description: "기본 작업 에이전트(sonnet, medium effort). 코드 읽기와 구조 파악, 규칙 문서 대조(체크리스트 매칭), 호출 경로 추적·열거, 일반 구현·수정·검토처럼 판단이 들어가되 한두 단계로 결론이 나는 일에 사용한다."
+description: "기본 작업 에이전트(sonnet, medium effort). 요구가 모호하거나 열린 탐색, 설계 판단, 여러 결과의 종합, 사용자에게 가는 최종 결론, 부수 발견 보고의 신뢰가 중요한 조사·구현·검토에 사용한다. 완료를 테스트·정답 대조로 객관적으로 확인할 수 있는 수집·추적·집계·정해진 구현은 비용이 약 1/16인 scout(읽기)·builder(수정)를 먼저 쓴다."
 tools: Read, Grep, Glob, Bash, Edit, Write, NotebookEdit
 model: sonnet
 effort: medium
