@@ -103,13 +103,21 @@
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": false,
     "playground@claude-plugins-official": false,
-    "mssql-tools@common-skill-harness": true
+    "mssql-tools@common-skill-harness": true,
+    "path-links@sooop-mods": true,
+    "table-copy@sooop-mods": true
   },
   "extraKnownMarketplaces": {
     "common-skill-harness": {
       "source": {
         "source": "git",
         "url": "http://gitlab.qxpress.net/infra/common-skill-harness.git"
+      }
+    },
+    "sooop-mods": {
+      "source": {
+        "source": "directory",
+        "path": "C:\\Users\\sooop\\.claude\\my-mods"
       }
     }
   },
@@ -162,5 +170,12 @@
       "**Org-specific CLIs**: None configured",
       "routine under C:\\projects\\tx-front-react\\ prefix: fd/rg file search, npm/npx script runs (dev, build, lint, test, extract-i18n, validate-i18n), Redmine issue lookups via ../redmine-db-notify"
     ]
+  },
+  "pluginConfigs": {
+    "table-copy@sooop-mods": {
+      "options": {
+        "format": "tsv"
+      }
+    }
   }
 }

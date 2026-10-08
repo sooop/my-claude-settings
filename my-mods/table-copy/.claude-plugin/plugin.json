@@ -1,0 +1,16 @@
+{
+  "name": "table-copy",
+  "version": "0.1.0",
+  "author": { "name": "sooop" },
+  "description": "응답의 마크다운 표를 TSV/CSV로 클립보드에 복사 (프롬프트 위 버튼, /copy-table)",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "format": {
+      "type": "string",
+      "title": "복사 형식",
+      "description": "표를 복사할 형식: tsv(탭 구분, 엑셀 붙여넣기에 적합) 또는 csv(쉼표 구분)",
+      "default": "tsv",
+      "options": ["tsv", "csv"]
+    }
+  }
+}
