@@ -107,7 +107,8 @@
     "txadmin@synced": false,
     "txinquiry@synced": false,
     "path-links@sooop-mods": true,
-    "table-copy@sooop-mods": true
+    "table-copy@sooop-mods": true,
+    "telegram-bridge@sooop-mods": true
   },
   "extraKnownMarketplaces": {
     "sooop-mods": {
@@ -130,6 +131,18 @@
   "promptSuggestionEnabled": false,
   "awaySummaryEnabled": false,
   "askUserQuestionTimeout": "never",
+  "pluginConfigs": {
+    "table-copy@sooop-mods": {
+      "options": {
+        "format": "tsv"
+      }
+    },
+    "telegram-bridge@inline": {
+      "options": {
+        "chatId": "-1001243676050"
+      }
+    }
+  },
   "autoUpdatesChannel": "latest",
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
@@ -166,12 +179,5 @@
       "**Org-specific CLIs**: None configured",
       "routine under C:\\projects\\tx-front-react\\ prefix: fd/rg file search, npm/npx script runs (dev, build, lint, test, extract-i18n, validate-i18n), Redmine issue lookups via ../redmine-db-notify"
     ]
-  },
-  "pluginConfigs": {
-    "table-copy@sooop-mods": {
-      "options": {
-        "format": "tsv"
-      }
-    }
   }
 }
