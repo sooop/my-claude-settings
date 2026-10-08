@@ -15,11 +15,11 @@ short_model=$(echo "$model" | sed 's/Claude //i' | sed 's/ /-/g')
 # effort 레벨 (고정 도형 + 색상만 변화)
 effort=$(echo "$input" | jq -r '.effort.level // empty')
 case "$effort" in
-  low)    short_model=$(printf '%s(\033[38;5;130m◮\033[0m)' "$short_model") ;;
-  medium) short_model=$(printf '%s(\033[38;5;34m◑\033[0m)' "$short_model") ;;
-  high)   short_model=$(printf '%s(\033[38;5;208m◧\033[0m)' "$short_model") ;;
-  xhigh)  short_model=$(printf '%s(\033[38;5;129m◓\033[0m)' "$short_model") ;;
-  max)    short_model=$(printf '%s(\033[1;38;5;196m◍\033[0m)' "$short_model") ;;
+  low)    short_model=$(printf '%s(\033[38;5;130m○\033[0m)' "$short_model") ;;
+  medium) short_model=$(printf '%s(\033[38;5;34m●\033[0m)' "$short_model") ;;
+  high)   short_model=$(printf '%s(\033[38;5;208m●\033[0m)' "$short_model") ;;
+  xhigh)  short_model=$(printf '%s(\033[38;5;129m●\033[0m)' "$short_model") ;;
+  max)    short_model=$(printf '%s(\033[1;38;5;196m☺\033[0m)' "$short_model") ;;
 esac
 sid=$(echo "$input" | jq -r '.session_id')
 flag=~/.claude/state/processing-$sid
