@@ -1,0 +1,27 @@
+{
+  "name": "telegram-bridge",
+  "version": "0.1.0",
+  "author": {
+    "name": "sooop"
+  },
+  "description": "Telegram 채널로 텍스트·응답·파일 전송(/tg-send)과 최근 메시지 읽기(/tg-read)",
+  "userConfig": {
+    "botToken": {
+      "type": "string",
+      "title": "Bot 토큰",
+      "description": "BotFather 에서 발급한 토큰 (secure storage 에 저장됨)",
+      "sensitive": true
+    },
+    "chatId": {
+      "type": "string",
+      "title": "채널 chat_id",
+      "description": "예: -1001234567890 (봇이 채널 관리자여야 함)"
+    },
+    "downloadDir": {
+      "type": "string",
+      "title": "파일 저장 폴더",
+      "description": "/tg-get 으로 받은 파일을 저장할 폴더. 비워두면 사용자 Downloads 폴더. 같은 이름은 (1), (2)...",
+      "default": ""
+    }
+  }
+}
