@@ -9,8 +9,9 @@
 ### 서브 에이전트 모델·effort 선택 (상세: `agent-routing` 스킬)
 
 에이전트·워크플로를 띄우기 전에 `agent-routing` 스킬을 호출해 기준을 확인한다. 요약:
-- 기본은 sonnet(medium). 수집·추출만이면 haiku(`scout`), 검증·반증·판정은 sonnet high(`verifier`), opus(`deep-reasoner`)는 좁은 예외.
-- `model`을 단계마다 명시한다(미지정 시 세션 모델 상속). `Agent` 는 `effort` 파라미터가 없으므로 티어 에이전트(`scout`·`worker`·`verifier`·`deep-reasoner`)를 고른다. `model` 누락은 `agent-guard.sh` 훅이 막는다.
+- **모델을 지정하지 않으면 sonnet(medium)이 기본이다.** 완료를 테스트·정답 대조·명령 출력으로 객관적으로 확인할 수 있는 일(수집·추적·집계·정해진 구현)은 Haiku 5.5(medium) 티어(`scout` 읽기, `builder` 수정)로 먼저 보낸다 — 실측에서 sonnet 과 정확도가 같고 비용은 약 1/16. 요구가 모호하거나 판단·종합이 필요하면 sonnet(`worker`), High 이상 검증·반증은 sonnet high(`verifier`), opus(`deep-reasoner`)는 좁은 예외.
+- **`model:'haiku'` 별칭은 Haiku 4.5(느리고 비쌈)다. 쓰지 않는다.** 5.5 는 티어 에이전트(frontmatter `claude-haiku-5-5`)나 `Workflow` 의 `agent({model:'claude-haiku-5-5'})` 로만 지정된다.
+- `Workflow` 의 `agent()` 는 `model` 을 비우면 세션 모델(opus)을 상속하므로 항상 명시한다. `Agent` 는 `effort` 파라미터가 없으므로 티어 에이전트(`scout`·`builder`·`worker`·`verifier`·`deep-reasoner`)를 고른다.
 - 읽기 전용 분석에는 금지 제약을 프롬프트 첫 부분에 쓰고, 끝난 뒤 `git status --short` 로 사후 점검한다.
 
 ## CLI 도구 사용 지침 (상세: `cli-tools` 스킬)
