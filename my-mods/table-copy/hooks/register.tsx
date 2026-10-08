@@ -34,10 +34,32 @@ export const register: Register = (on, options) => {
     return next(e)
   })
 
+  // 한 턴은 도구 호출 사이마다 여러 메시지를 낼 수 있고, turn.complete 의 e.answer 는 그중 마지막 메시지뿐이다.
+  // 그래서 단계(turn.step)마다 그 메시지의 표를 모아 두었다가 턴이 끝날 때 한 번에 반영한다.
+  let currentTurn: string | undefined
+  let collected: Table[] = []
+
+  // turn.step 은 스트리밍 이벤트라 async generator 로 쓴다: 청크는 그대로 흘려보내고 끝난 결과만 읽는다.
+  on('turn.step', async function* ($, e, next) {
+    const response = yield* next(e)
+
+    if (e.agentId === undefined) {
+      if (e.turnId !== currentTurn) {
+        currentTurn = e.turnId
+        collected = []
+      }
+      collected = [...collected, ...findTables(response.answer)]
+    }
+
+    return response
+  })
+
   on('turn.complete', async ($, e, next) => {
     if (e.agentId === undefined) {
-      const found: Table[] = findTables(e.answer)
-      await update($, tables, () => found)    }
+      // 단계 훅이 못 본 턴(재로드 직후 등)은 마지막 메시지만으로 대신한다.
+      const found: Table[] = currentTurn === e.turnId ? collected : findTables(e.answer)
+      await update($, tables, () => found)
+    }
 
     return next(e)
   })
@@ -71,21 +93,37 @@ export const register: Register = (on, options) => {
 
     const { Box, Button, Text } = $.ui.resolve(e)
 
+    // 공식 예제 구조: Button 을 Box 바로 아래에 key 와 함께 둔다(버튼마다 Box 로 감싸지 않는다).
+    const buttons = list.flatMap((table, i) => [
+      <Button
+        key={`copy:${i}`}
+        label={list.length === 1 ? '복사' : `표 ${i + 1}`}
+        onPress={() => {
+          void copy($, serialize(table, format), `표 ${i + 1}`, label)
+        }}
+      />,
+      <Text key={`gap:${i}`}> </Text>,
+    ])
+
+    const all =
+      list.length > 1
+        ? [
+            <Button
+              key="copy:all"
+              label="전체"
+              onPress={() => {
+                const text = list.map(t => serialize(t, format)).join('\n\n')
+                void copy($, text, `표 ${list.length}개`, label)
+              }}
+            />,
+          ]
+        : []
+
     return (
       <Box>
         <Text dimColor>표 복사({label}): </Text>
-        {list.map((table, i) => (
-          <Box>
-            <Button
-              key={`copy:${i}`}
-              label={list.length === 1 ? '복사' : `표 ${i + 1}`}
-              onPress={() => {
-                void copy($, serialize(table, format), `표 ${i + 1}`, label)
-              }}
-            />
-            <Text> </Text>
-          </Box>
-        ))}
+        {buttons}
+        {all}
       </Box>
     )
   })
