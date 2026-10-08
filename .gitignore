@@ -21,7 +21,9 @@ projects/
 plans/
 
 *.stackdump
-.claude
+# 중첩 .claude 는 제외하되 저장소 루트의 프로젝트 범위 스킬(.claude/skills)만 추적
+**/.claude/*
+!/.claude/skills/
 # 플러그인 런타임 데이터 (setup.md로 대체 문서화)
 plugins/installed_plugins.json
 plugins/install-counts-cache.json
