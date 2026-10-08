@@ -1,9 +1,9 @@
 ---
 name: scout
-description: "판단이 섞이지 않은 수집·추출 전용 에이전트(haiku, low effort). 파일 목록화, 심볼·정의 위치 찾기, 정해진 형식의 인용 수집, 로케일 키 대조, 대량 항목의 기계적 분류처럼 '무엇이 어디 있는가'에 답하는 일에 사용한다. 읽기 전용."
+description: "수집·추적·집계·정해진 기준 대조 전용 에이전트(haiku 5.5, medium effort). 파일 목록화, 심볼·정의 위치 찾기, 호출 사슬 추적, 대량 항목 집계·분류, 인용 수집, 로케일 키 대조처럼 정답이 객관적으로 확인되는 읽기 작업에 사용한다. sonnet(worker)과 정확도 차이가 없고 비용은 약 1/16이다. 읽기 전용."
 tools: Read, Grep, Glob, Bash
-model: haiku
-effort: low
+model: claude-haiku-5-5
+effort: medium
 skills: cli-tools
 color: green
 ---

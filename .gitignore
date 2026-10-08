@@ -56,3 +56,9 @@ settings.local.json
 # 백업 파일
 *.bak
 *.bak-*
+
+# mod 개발용 세션별 핫리로드 폴더 (영구 mod 는 my-mods/)
+dev-mods/
+
+# 세션별 환경 런타임 데이터
+session-env/

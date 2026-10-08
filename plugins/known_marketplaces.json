@@ -5,7 +5,7 @@
       "repo": "anthropics/claude-plugins-official"
     },
     "installLocation": "C:\\Users\\sooop\\.claude\\plugins\\marketplaces\\claude-plugins-official",
-    "lastUpdated": "2026-10-06T16:40:05.449Z"
+    "lastUpdated": "2026-10-07T05:58:04.732Z"
   },
   "common-skill-harness": {
     "source": {
@@ -14,5 +14,13 @@
     },
     "installLocation": "C:\\Users\\sooop\\.claude\\plugins\\marketplaces\\common-skill-harness",
     "lastUpdated": "2026-08-06T05:26:05.237Z"
+  },
+  "sooop-mods": {
+    "source": {
+      "source": "directory",
+      "path": "C:\\Users\\sooop\\.claude\\my-mods"
+    },
+    "installLocation": "C:\\Users\\sooop\\.claude\\my-mods",
+    "lastUpdated": "2026-10-07T05:15:50.180Z"
   }
 }
