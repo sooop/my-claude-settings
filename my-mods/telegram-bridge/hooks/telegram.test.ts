@@ -24,7 +24,7 @@ test('multipart 본문', () => {
   expect(body.endsWith('--B--\r\n')).toBe(true)
 })
 
-import { clip, isTextLike, items, parseRange, safeName, uniqueName } from './telegram'
+import { blockedReason, clip, isTextLike, items, parseRange, safeName, uniqueName } from './telegram'
 
 test('첨부 수집: 문서·사진, 가장 큰 사진, 다른 chat 제외', () => {
   const ups = [
@@ -69,4 +69,13 @@ test('중복 파일명은 (1), (2) 로', async () => {
   expect(await uniqueName('b.log', isTaken)).toBe('b.log')
   expect(await uniqueName('a.log', isTaken)).toBe('a (2).log')
   expect(await uniqueName('noext', isTaken)).toBe('noext (1)')
+})
+
+test('민감 파일 차단', () => {
+  for (const p of ['C:\\p\\.env', '/a/.env.local', '/a/id_rsa', 'x/server.PEM', 'C:\\Users\\u\\.ssh\\config', '/h/.aws/credentials', '/a/secrets.json', '/a/../b.txt', '.claude/settings.local.json']) {
+    expect(blockedReason(p)).toBeDefined()
+  }
+  for (const p of ['/a/report.md', 'C:\\p\\out\\result.png', '/a/environment.txt', '/a/keyboard.ts']) {
+    expect(blockedReason(p)).toBeUndefined()
+  }
 })

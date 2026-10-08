@@ -58,3 +58,41 @@ test('/tg-send 는 sendMessage 호출', { options }, async ($, on) => {
   expect(r.text).toContain('전송했습니다')
   expect(sent.some(u => u.includes('/sendMessage'))).toBe(true)
 })
+
+test('tg_send 도구는 text 를 sendMessage 로 보낸다', { options }, async ($, on) => {
+  const sent: string[] = []
+  fakeApi(on, sent)
+  const r = await $.tool.call({ tool: 'mcp__telegram-bridge__tg_send', text: 'hi' })
+  expect(String(r.result)).toContain('전송했습니다')
+  expect(sent.some(u => u.includes('/sendMessage'))).toBe(true)
+})
+
+test('tg_send 도구는 file/text 둘 다 없으면 안내', { options }, async ($, on) => {
+  fakeApi(on, [])
+  const r = await $.tool.call({ tool: 'mcp__telegram-bridge__tg_send' })
+  expect(String(r.result)).toContain('필요합니다')
+})
+
+test('tg_send 도구는 민감 파일을 deny', { options }, async ($, on) => {
+  const sent: string[] = []
+  fakeApi(on, sent)
+  const r = await $.tool.call({ tool: 'mcp__telegram-bridge__tg_send', file: '/proj/.env' })
+  expect(r.deny).toContain('전송 차단')
+  expect(sent.length).toBe(0)
+})
+
+test('tg_send 도구는 링크가 가리키는 실제 경로로 민감 파일을 deny', { options }, async ($, on) => {
+  const sent: string[] = []
+  fakeApi(on, sent)
+  on('fs.stat', async () => ({ value: { kind: 'file', size: 1, mtimeMs: 0, isLink: true, realPath: 'C:/p/.env' } }))
+  const r = await $.tool.call({ tool: 'mcp__telegram-bridge__tg_send', file: '/proj/report.md' })
+  expect(r.deny).toContain('전송 차단')
+  expect(sent.length).toBe(0)
+})
+
+test('tg_send 도구는 없는 파일이면 안내', { options }, async ($, on) => {
+  fakeApi(on, [])
+  on('fs.stat', async () => { throw new Error('ENOENT') })
+  const r = await $.tool.call({ tool: 'mcp__telegram-bridge__tg_send', file: '/proj/none.md' })
+  expect(String(r.result)).toContain('찾을 수 없습니다')
+})
