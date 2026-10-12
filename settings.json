@@ -108,7 +108,8 @@
     "txinquiry@synced": false,
     "path-links@sooop-mods": true,
     "table-copy@sooop-mods": true,
-    "telegram-bridge@sooop-mods": true
+    "telegram-bridge@sooop-mods": true,
+    "agent-view-band@sooop-mods": true
   },
   "extraKnownMarketplaces": {
     "sooop-mods": {
