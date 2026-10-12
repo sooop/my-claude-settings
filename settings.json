@@ -183,5 +183,9 @@
       "**Org-specific CLIs**: None configured",
       "routine under C:\\projects\\tx-front-react\\ prefix: fd/rg file search, npm/npx script runs (dev, build, lint, test, extract-i18n, validate-i18n), Redmine issue lookups via ../redmine-db-notify"
     ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-subagent.sh"
   }
 }
