@@ -16,8 +16,10 @@ echo "$input" | jq -c '
     { "haiku": "38;5;37", "sonnet": "38;5;33", "opus": "38;5;170", "fable": "38;5;178" }[.] // "2";
   # 모델 미지정(상속) 행은 메인 세션 모델로 표시
   (.model.id // .model.display_name // "") as $main
-  | .tasks[]
-  | ((.model // $main) | if . == "" then "?" else family end) as $fam
+  | .tasks[]?
+  | ((.model // "") | if type == "object" then (.id // .display_name // "") else tostring end
+     | if . == "" or . == "inherit" then $main else . end
+     | if . == "" then "?" else family end) as $fam
   # 에이전트 이름: 지정 이름(name) > 에이전트 타입(worker·scout 등)
   | ([.name, .agentType] | map(select(. != null and . != "")) | first // "agent") as $agent
   | (.label // .description // "") as $desc
