@@ -34,7 +34,6 @@
   },
   "model": "opusplan",
   "skillOverrides": {
-    "react-porting-guide": "off",
     "redmine-issue": "off"
   },
   "hooks": {
@@ -100,6 +99,10 @@
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
   },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-subagent.sh"
+  },
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": false,
     "playground@claude-plugins-official": true,
@@ -145,6 +148,7 @@
     }
   },
   "autoUpdatesChannel": "latest",
+  "autoMemoryEnabled": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "skipAutoPermissionPrompt": true,
@@ -180,9 +184,5 @@
       "**Org-specific CLIs**: None configured",
       "routine under C:\\projects\\tx-front-react\\ prefix: fd/rg file search, npm/npx script runs (dev, build, lint, test, extract-i18n, validate-i18n), Redmine issue lookups via ../redmine-db-notify"
     ]
-  },
-  "subagentStatusLine": {
-    "type": "command",
-    "command": "bash ~/.claude/statusline-subagent.sh"
   }
 }
