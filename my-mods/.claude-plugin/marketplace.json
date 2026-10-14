@@ -19,6 +19,11 @@
       "name": "telegram-bridge",
       "source": "./telegram-bridge",
       "description": "Telegram 채널로 전송(/tg-send)·메시지/첨부 받기(/tg-get)"
+    },
+    {
+      "name": "agent-view-band",
+      "source": "./agent-view-band",
+      "description": "서브에이전트 창을 볼 때 프롬프트 위에 이름·모델·effort 표시"
     }
   ]
 }

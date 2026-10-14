@@ -1,0 +1,1 @@
+{ "name": "agent-view-band", "version": "0.1.0", "author": { "name": "sooop" }, "description": "서브에이전트 창을 볼 때 프롬프트 위에 에이전트 이름·모델·effort 표시", "types": "./types/index.d.ts" }
