@@ -51,6 +51,7 @@
 
 ## 개발 서버 (사용자가 `npm run dev:https` 로 직접 관리)
 
-- 개발 서버를 임의로 실행하지 않는다. `rm -rf .next`·`npm run build` 같은 `.next` 재생성 명령과 `npm run dev*` 는 `bash-guard.sh` 가 포트 점유 상태를 보여주며 사용자 확인(ask)을 요구한다.
+- 개발 서버를 임의로 실행하지 않는다. `rm -rf .next` 와 `npm run dev*`(포트 미지정)는 `bash-guard.sh` 가 포트 점유 상태를 보여주며 사용자 확인(ask)을 요구한다. 이 확인은 Next.js 프로젝트(cwd 에 `next.config.*` 또는 package.json 에 `"next":`)에서만 적용되며, 확장 등 그 밖의 프로젝트는 묻지 않는다.
+- `npm run build` 는 훅이 묻지 않는다(사용자 결정). 단 Next.js 프로젝트에서는 dev 서버가 떠 있으면 `.next` 가 재생성되어 서버가 깨질 수 있으므로, 빌드 전에 `netstat -ano` 로 서버 가동 여부를 직접 확인한다.
 - 서버가 필요하면 먼저 `netstat -ano` 로 포트 점유를 확인하고 떠 있는 서버를 쓴다. 검증은 `npx tsc --noEmit` 을 우선하고, 불가피하면 `next dev -p <다른 포트>` 로 격리한다.
 - HTTPS 전용 스크립트(`dev:https` 등)가 있는 프로젝트는 로컬 테스트 문서나 관련 스킬을 먼저 확인해 일반 `dev` 대신 써야 하는지 판단한다.
