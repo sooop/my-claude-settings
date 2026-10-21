@@ -4,6 +4,9 @@ import type { EngineInterface, Register } from 'claude-code'
 const EDITOR_EXE = 'notepad3.exe'
 // 찾지 못했을 때의 마지막 수단 — start 가 프로세스 PATH 로 풀어 본다.
 const DEFAULT_EDITOR = EDITOR_EXE
+// 이미지 뷰어 실행 파일 이름 (편집기와 같은 방식으로 scoop shims 등에서 찾는다)
+const VIEWER_EXE = 'irfanview.exe'
+const DEFAULT_VIEWER = VIEWER_EXE
 
 // session-env.sh 의 `EXTRA_PATH='/c/Python/...:/c/...'`(scoop 제외 정적 경로) → Windows 폴더 목록 (`C:\Python\Python315`, ...)
 export const parseExtraPath = (shText: string): string[] => {
@@ -24,13 +27,14 @@ export const scoopShimDirs = (scoop?: string, userProfile?: string): string[] =>
     .filter((d): d is string => !!d)
     .map(d => `${d.replace(/[\\/]+$/, '')}\\shims`)
 
-// EXTRA_PATH 폴더들 중 EDITOR_EXE 가 실제로 있는 첫 경로
+// EXTRA_PATH 폴더들 중 exe(기본 EDITOR_EXE)가 실제로 있는 첫 경로
 export const findEditor = async (
   dirs: string[],
-  exists: (p: string) => Promise<boolean>
+  exists: (p: string) => Promise<boolean>,
+  exe: string = EDITOR_EXE
 ): Promise<string | undefined> => {
   for (const d of dirs) {
-    const p = `${d.replace(/[\\/]+$/, '')}\\${EDITOR_EXE}`
+    const p = `${d.replace(/[\\/]+$/, '')}\\${exe}`
     if (await exists(p)) return p
   }
   return undefined
@@ -41,6 +45,16 @@ export const DEFAULT_EXTS =
   'md,markdown,txt,csv,tsv,json,jsonc,yaml,yml,toml,ini,cfg,conf,env,xml,html,htm,css,scss,' +
   'js,jsx,mjs,cjs,ts,tsx,mts,cts,py,sh,bash,ps1,bat,cmd,sql,log,java,kt,cs,go,rs,rb,php,' +
   'c,cpp,h,hpp,vue,svelte,gradle,properties,lock'
+
+// 이미지 뷰어로 여는 확장자 (userConfig.imageExtensions 로 덮어쓴다). 링크 대상 확장자에도 함께 들어간다.
+export const DEFAULT_IMAGE_EXTS = 'png,jpg,jpeg,gif,bmp,webp,tif,tiff,ico,svg'
+
+export const isImagePath = (path: string, imageExts: string[]): boolean => {
+  const m = /[^\\/.]\.([A-Za-z0-9]{1,10})$/.exec(path)
+  return !!m && imageExts.includes(m[1]!.toLowerCase())
+}
+// 파일처럼 보이는 경로(마지막 구간에 확장자) — `.claude` 같은 점 폴더는 제외
+const looksLikeFile = (path: string) => /[^\\/.]\.[A-Za-z0-9]{1,10}$/.test(path)
 
 const SEG = '[\\w.@가-힣-]+'
 const escRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -69,17 +83,20 @@ const makeRelRegexes = (exts: string[]) => {
 
 // 링크 주소는 항상 실제 절대경로의 file: 주소다 (Ctrl+클릭 등으로 터미널이 직접 열어도 파일이 열린다).
 // 줄·열은 프래그먼트(#L12C3)로 싣는다. 파일명 안의 # 는 %23 으로 인코딩되므로 겹치지 않는다.
-const toHref = (p: string, line?: string, col?: string) =>
+// action: 기본 클릭(타입별 자동) 대신 쓰는 보조 동작 — folder(탐색기에서 선택), copydir(디렉터리 경로 복사)
+export type LinkAction = 'folder' | 'copydir'
+const toHref = (p: string, line?: string, col?: string, action?: LinkAction) =>
   'file:///' +
   encodeURI(p.split('\\').join('/')).split('#').join('%23') +
-  (line ? `#L${line}${col ? `C${col}` : ''}` : '')
+  (action ? `#${action}` : line ? `#L${line}${col ? `C${col}` : ''}` : '')
 
 export const fromHref = (h: string) => {
-  const m = /^(.*?)(?:#L(\d+)(?:C(\d+))?)?$/.exec(h.slice('file:///'.length))!
+  const m = /^(.*?)(?:#(?:L(\d+)(?:C(\d+))?|(folder|copydir)))?$/.exec(h.slice('file:///'.length))!
   return {
     path: decodeURIComponent(m[1] ?? '').split('/').join('\\'),
     line: m[2],
     col: m[3],
+    action: m[4] as LinkAction | undefined,
   }
 }
 
@@ -131,16 +148,24 @@ export type LinkCfg = {
   exts: string[]
   // 상대경로·파일명 → 프로젝트의 실제 절대경로. undefined = 없음(또는 인덱스가 아직 없음)이므로 링크하지 않는다
   locate?: (relPath: string) => string | undefined
+  // 파일 경로 링크 뒤에 [폴더][경로복사] 보조 링크를 붙인다 (답변 본문에만 켠다)
+  aux?: boolean
 }
+
+const auxLinks = (abs: string, cfg: LinkCfg): string =>
+  cfg.aux && looksLikeFile(abs)
+    ? ` [\\[폴더\\]](${toHref(abs, undefined, undefined, 'folder')})` +
+      ` [\\[경로복사\\]](${toHref(abs, undefined, undefined, 'copydir')})`
+    : ''
 
 // 링크 라벨의 역슬래시는 마크다운 이스케이프로 먹히지 않게 겹쳐 쓴다 (`\.claude` → `.claude` 방지)
 const label = (s: string) => s.split('\\').join('\\\\')
 
 // 'docs/a.md:12:3' → file: 주소 (프로젝트에서 찾지 못하면 undefined)
-const hrefFor = (p: string, cfg: LinkCfg): string | undefined => {
+const hrefFor = (p: string, cfg: LinkCfg): { href: string; abs: string } | undefined => {
   const { path, line, col } = splitLine(p)
   const abs = cfg.locate?.(path)
-  return abs === undefined ? undefined : toHref(abs, line, col)
+  return abs === undefined ? undefined : { href: toHref(abs, line, col), abs }
 }
 
 export const linkify = (text: string, cfg: LinkCfg): string => {
@@ -150,19 +175,22 @@ export const linkify = (text: string, cfg: LinkCfg): string => {
     .split(/(```[\s\S]*?```)/g)
     .map((part, i) => {
       if (i % 2 === 1) return part
-      let out = part.replace(TICKED, (_m, p: string) => `[\`${p}\`](${toHref(p)})`)
+      let out = part.replace(
+        TICKED,
+        (_m, p: string) => `[\`${p}\`](${toHref(p)})${auxLinks(p, cfg)}`
+      )
       if (rel) {
         out = out.replace(rel.ticked, (m, p: string) => {
-          const href = hrefFor(p, cfg)
-          return href ? `[\`${p}\`](${href})` : m
+          const hit = hrefFor(p, cfg)
+          return hit ? `[\`${p}\`](${hit.href})${auxLinks(hit.abs, cfg)}` : m
         })
       }
       // 이미 만든 링크 안의 경로는 BARE 의 lookbehind([, ( 등)가 걸러낸다
-      out = out.replace(BARE, (_m, p: string) => `[${label(p)}](${toHref(p)})`)
+      out = out.replace(BARE, (_m, p: string) => `[${label(p)}](${toHref(p)})${auxLinks(p, cfg)}`)
       if (rel) {
         out = out.replace(rel.bare, (m, p: string) => {
-          const href = hrefFor(p, cfg)
-          return href ? `[${label(p)}](${href})` : m
+          const hit = hrefFor(p, cfg)
+          return hit ? `[${label(p)}](${hit.href})${auxLinks(hit.abs, cfg)}` : m
         })
       }
       return out
@@ -235,6 +263,8 @@ type State = {
   editor: string
   editorArgs: string
   lineArgs: string
+  viewer: string
+  imageExts: string[]
   resolveNames: boolean
   index?: FileIndex
   building: boolean
@@ -269,39 +299,85 @@ async function refresh($: EngineInterface, st: State, force = false) {
   }
 }
 
-async function openFile($: EngineInterface, st: State, path: string, line?: string, col?: string) {
+// 'cmd /c start' 로 띄운다 (buildEditorArgv 의 주석 참고). 앞부분 [cmd, /c, start, ''] 는 모든 프로그램이 같다.
+export const startArgv = (...rest: string[]): string[] => ['cmd.exe', '/c', 'start', '', ...rest]
+
+// 링크 하나를 어떻게 열지: 보조 동작 > 디렉터리 > 이미지 > 편집기 순으로 고른다
+export type OpenPlan =
+  | { kind: 'copydir'; text: string }
+  | { kind: 'run'; argv: string[]; who: string }
+
+export const planOpen = (
+  st: Pick<State, 'editor' | 'editorArgs' | 'lineArgs' | 'viewer' | 'imageExts'>,
+  path: string,
+  isDir: boolean,
+  line?: string,
+  col?: string,
+  action?: LinkAction
+): OpenPlan => {
+  if (action === 'copydir') return { kind: 'copydir', text: path.slice(0, path.lastIndexOf('\\')) }
+  if (action === 'folder') return { kind: 'run', argv: startArgv('explorer.exe', `/select,${path}`), who: '탐색기' }
+  if (isDir) return { kind: 'run', argv: startArgv('explorer.exe', path), who: '탐색기' }
+  if (isImagePath(path, st.imageExts)) return { kind: 'run', argv: startArgv(st.viewer, path), who: '이미지 뷰어' }
+  return {
+    kind: 'run',
+    argv: buildEditorArgv(st.editor, st.editorArgs, st.lineArgs, path, line, col),
+    who: '편집기',
+  }
+}
+
+async function openPath(
+  $: EngineInterface,
+  st: State,
+  href: string,
+  surface: Parameters<EngineInterface['ui']['copy']>[0]['surface']
+) {
+  const { path, line, col, action } = fromHref(href)
   try {
-    if (!(await $.fs.exists(path))) {
-      $.ui.toast(`파일을 찾을 수 없음: ${path}`)
+    const stat = await $.fs.stat(path).catch(() => undefined)
+    if (!stat) {
+      $.ui.toast(`찾을 수 없음: ${path}`)
       return
     }
-    // 기본값: /n 매번 새 창, /o 다른 창 위에 유지, /g 줄,열 이동 (편집기·인자는 설정으로 바꾼다)
-    const argv = buildEditorArgv(st.editor, st.editorArgs, st.lineArgs, path, line, col)
+    const plan = planOpen(st, path, stat.kind === 'dir', line, col, action)
+    if (plan.kind === 'copydir') {
+      const r = await $.ui.copy({ text: plan.text, surface })
+      $.ui.toast(r.isCopied ? `경로 복사됨: ${plan.text}` : `복사 실패: ${r.reason}`)
+      return
+    }
     let err = ''
-    for await (const c of $.process.spawn({ argv })) {
+    for await (const c of $.process.spawn({ argv: plan.argv })) {
       if (c.stream === 'stderr') err += c.text
     }
-    if (err.trim() !== '') $.ui.toast(`편집기 오류: ${err.trim().slice(0, 200)}`)
+    if (err.trim() !== '') $.ui.toast(`${plan.who} 오류: ${err.trim().slice(0, 200)}`)
   } catch (e) {
     $.ui.toast(`열기 실패: ${e instanceof Error ? e.message : String(e)}`)
   }
 }
 
-async function pressLink($: EngineInterface, st: State, href: string) {
+async function pressLink(
+  $: EngineInterface,
+  st: State,
+  href: string,
+  surface: Parameters<EngineInterface['ui']['copy']>[0]['surface']
+) {
   if (!href.startsWith('file:///')) return
-  const { path, line, col } = fromHref(href)
-  await openFile($, st, path, line, col)
+  await openPath($, st, href, surface)
 }
 
 export const register: Register = (on, options) => {
   const opt = options as Record<string, unknown>
   const str = (k: string, d: string) =>
     typeof opt[k] === 'string' && (opt[k] as string).trim() !== '' ? (opt[k] as string).trim() : d
+  const imageExts = parseExts(str('imageExtensions', DEFAULT_IMAGE_EXTS))
   const st: State = {
-    cfg: { exts: parseExts(str('extensions', DEFAULT_EXTS)) },
+    // 이미지 확장자도 상대경로·파일명 링크 대상에 넣는다. aux: 답변 본문 링크에만 [폴더][경로복사] 를 붙인다
+    cfg: { exts: [...new Set([...parseExts(str('extensions', DEFAULT_EXTS)), ...imageExts])], aux: true },
     editor: str('editorPath', DEFAULT_EDITOR),
-    editorArgs: str('editorArgs', '/n /o'),
+    editorArgs: str('editorArgs', '/n'),
     lineArgs: str('lineArgs', '/g {line},{col}'),
+    viewer: str('imageViewerPath', DEFAULT_VIEWER),
+    imageExts,
     resolveNames: opt.resolveFileNames !== false,
     building: false,
     builtAt: 0,
@@ -317,16 +393,24 @@ export const register: Register = (on, options) => {
 
   // 편집기 경로를 직접 지정하지 않았다면 session-env.sh 의 PATH 정본에서 풀어 쓴다
   const editorFixed = typeof opt.editorPath === 'string' && opt.editorPath.trim() !== ''
+  const viewerFixed = typeof opt.imageViewerPath === 'string' && opt.imageViewerPath.trim() !== ''
 
   on('session.start', async ($, e, next) => {
-    if (!editorFixed) {
+    if (!editorFixed || !viewerFixed) {
       try {
         const cfgDir =
           (await $.env.get('CLAUDE_CONFIG_DIR')) ?? `${(await $.env.get('USERPROFILE')) ?? ''}\\.claude`
         const sh = await $.fs.read(`${cfgDir}\\hooks\\session-env.sh`)
         const scoopDirs = scoopShimDirs(await $.env.get('SCOOP'), await $.env.get('USERPROFILE'))
-        const found = await findEditor([...scoopDirs, ...parseExtraPath(sh)], p => $.fs.exists(p))
-        if (found) st.editor = found
+        const dirs = [...scoopDirs, ...parseExtraPath(sh)]
+        if (!editorFixed) {
+          const found = await findEditor(dirs, p => $.fs.exists(p))
+          if (found) st.editor = found
+        }
+        if (!viewerFixed) {
+          const found = await findEditor(dirs, p => $.fs.exists(p), VIEWER_EXE)
+          if (found) st.viewer = found
+        }
       } catch {
         // 못 읽으면 DEFAULT_EDITOR 로 둔다
       }
@@ -346,14 +430,21 @@ export const register: Register = (on, options) => {
     if (linked === text || e.props.isSummary) return next(e)
 
     const { Markdown } = $.ui.resolve(e)
-    return <Markdown key="md" text={linked} onLinkPress={link => void pressLink($, st, link.href)} />
+    return (
+      <Markdown
+        key="md"
+        text={linked}
+        onLinkPress={(link, p) => void pressLink($, st, link.href, p.surface)}
+      />
+    )
   })
 
   on('ui.render', { component: 'ToolResult' }, ($, e, next) => {
     if (e.props.isErrored) return next(e)
     const text = toolText(e.props.tool, e.props.output)
     if (text === undefined) return next(e)
-    const linked = linkify(text, st.cfg)
+    // 도구 결과는 경로가 많아 보조 링크를 붙이지 않는다
+    const linked = linkify(text, { ...st.cfg, aux: false })
     if (linked === text) return next(e)
 
     const { Markdown } = $.ui.resolve(e)
@@ -361,7 +452,7 @@ export const register: Register = (on, options) => {
       <Markdown
         key="md"
         text={toToolMarkdown(linked)}
-        onLinkPress={link => void pressLink($, st, link.href)}
+        onLinkPress={(link, p) => void pressLink($, st, link.href, p.surface)}
       />
     )
   })

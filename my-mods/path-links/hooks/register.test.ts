@@ -1,6 +1,9 @@
 import { test, expect } from 'claude-code/testing'
 import {
   DEFAULT_EXTS,
+  DEFAULT_IMAGE_EXTS,
+  isImagePath,
+  planOpen,
   buildByName,
   buildEditorArgv,
   findEditor,
@@ -158,4 +161,40 @@ test('findEditor: EXTRA_PATH 폴더 중 notepad3.exe 가 있는 첫 곳', async 
     'C:\\Python\\Python315\\notepad3.exe'
   )
   expect(await findEditor(dirs, async () => false)).toBeUndefined()
+})
+
+test('이미지 판정: 확장자 기준, 점 폴더는 파일로 보지 않는다', () => {
+  const img = parseExts(DEFAULT_IMAGE_EXTS)
+  expect(isImagePath('C:\\p\\a.PNG', img)).toBe(true)
+  expect(isImagePath('C:\\p\\a.md', img)).toBe(false)
+  expect(isImagePath('C:\\p\\.png', img)).toBe(false)
+})
+
+test('보조 링크: aux 일 때만 파일 경로 뒤에 [폴더][경로복사] 가 붙고 되돌릴 수 있다', () => {
+  const withAux = { ...cfg, aux: true }
+  expect(linkify('C:\\q\\y.md', withAux)).toBe(
+    '[C:\\\\q\\\\y.md](file:///C:/q/y.md) [\\[폴더\\]](file:///C:/q/y.md#folder) [\\[경로복사\\]](file:///C:/q/y.md#copydir)'
+  )
+  expect(linkify('`C:\\q\\.claude`', withAux)).toBe('[`C:\\q\\.claude`](file:///C:/q/.claude)')
+  expect(linkify('C:\\q\\y.md', cfg)).toBe('[C:\\\\q\\\\y.md](file:///C:/q/y.md)')
+  expect(fromHref('file:///C:/q/y.md#folder').action).toBe('folder')
+  expect(fromHref('file:///C:/q/y.md#copydir').path).toBe('C:\\q\\y.md')
+})
+
+test('보조 링크: 상대경로는 cwd 로 합성한 절대경로를 쓴다 (줄 번호는 제외)', () => {
+  const withAux = { ...cfg, aux: true, locate: (r: string) => (r === 'src/app/x.tsx' ? 'C:\\p\\src\\app\\x.tsx' : undefined) }
+  expect(linkify('`src/app/x.tsx:12`', withAux)).toBe(
+    '[`src/app/x.tsx:12`](file:///C:/p/src/app/x.tsx#L12) [\\[폴더\\]](file:///C:/p/src/app/x.tsx#folder) [\\[경로복사\\]](file:///C:/p/src/app/x.tsx#copydir)'
+  )
+})
+
+test('planOpen: 보조 동작 > 디렉터리 > 이미지 > 편집기', () => {
+  const st = { editor: 'ed.exe', editorArgs: '/n', lineArgs: '/g {line}', viewer: 'iv.exe', imageExts: ['png'] }
+  expect(planOpen(st, 'C:\\p\\a.md', false, undefined, undefined, 'copydir')).toEqual({ kind: 'copydir', text: 'C:\\p' })
+  expect(planOpen(st, 'C:\\p\\a.md', false, undefined, undefined, 'folder')).toMatchObject({
+    argv: ['cmd.exe', '/c', 'start', '', 'explorer.exe', '/select,C:\\p\\a.md'],
+  })
+  expect(planOpen(st, 'C:\\p\\d', true)).toMatchObject({ argv: ['cmd.exe', '/c', 'start', '', 'explorer.exe', 'C:\\p\\d'] })
+  expect(planOpen(st, 'C:\\p\\a.png', false)).toMatchObject({ argv: ['cmd.exe', '/c', 'start', '', 'iv.exe', 'C:\\p\\a.png'] })
+  expect(planOpen(st, 'C:\\p\\a.md', false, '3')).toMatchObject({ who: '편집기' })
 })
