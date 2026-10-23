@@ -26,18 +26,47 @@ const family = (model: string): string => {
   return ['fable', 'opus', 'sonnet', 'haiku'].find(f => m.includes(f)) ?? model
 }
 
+let mainModel: string | undefined
+
+// 서브에이전트 모델의 컨텍스트 창 크기: [1m] 표기 > 메인 세션과 같은 모델이면 세션 창 > 200k
+const windowOf = async ($: { session: { usage: () => Promise<{ context: { window: number } }> } }, model: string): Promise<number> => {
+  if (/1m/i.test(model)) {
+    return 1_000_000
+  }
+  if (model === mainModel) {
+    return $.session.usage().then(u => u.context.window, () => 200_000)
+  }
+  return 200_000
+}
+
+const fmtK = (n: number): string => (n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : `${Math.round(n / 1000)}k`)
+
 export const register: Register = on => {
   // turn.step 은 스트리밍 이벤트라 async generator 로만 등록된다
   on('turn.step', async function* ($, e, next) {
+    if (e.agentId === undefined) {
+      mainModel = e.model
+    }
+    const result = yield* next(e)
     const agentId = e.agentId
     if (agentId !== undefined) {
-      const entry: AgentModel = { model: e.model, effort: e.effort }
+      const u = result.usage
       const prev = (await read($, models))[agentId]
-      if (prev?.model !== entry.model || prev?.effort !== entry.effort) {
+      const entry: AgentModel = {
+        model: e.model,
+        effort: e.effort,
+        // 다음 요청이 다시 보내는 프롬프트 토큰 = 서브에이전트 자신의 컨텍스트 사용량
+        tokens: u ? u.input_tokens + u.cache_read_input_tokens + u.cache_creation_input_tokens + u.output_tokens : prev?.tokens,
+        window: prev?.window,
+      }
+      if (u && (entry.window === undefined || prev?.model !== e.model)) {
+        entry.window = await windowOf($, e.model)
+      }
+      if (prev?.model !== entry.model || prev?.effort !== entry.effort || prev?.tokens !== entry.tokens || prev?.window !== entry.window) {
         await update($, models, all => ({ ...all, [agentId]: entry }))
       }
     }
-    return yield* next(e)
+    return result
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
@@ -72,6 +101,12 @@ export const register: Register = on => {
           </Text>
         ) : (
           <Text>({effort})</Text>
+        )}
+        {used?.tokens === undefined || !used.window ? null : (
+          <Text dimColor>
+            {' '}
+            · ctx {Math.round((used.tokens / used.window) * 100)}% ({fmtK(used.tokens)}/{fmtK(used.window)})
+          </Text>
         )}
         {info?.description ? <Text dimColor> · {info.description}</Text> : null}
       </Box>
