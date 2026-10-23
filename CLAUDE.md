@@ -22,6 +22,15 @@
 - `sd` 는 UTF-16 파일에서 경고 없이 아무 일도 하지 않는다 — 일괄 치환 전 `cli-tools` 스킬의 UTF-16 점검을 따른다.
 - PATH(scoop·python·nodejs)는 SessionStart 훅 `session-env.sh` 가 추가한다.
 
+## 클립보드 복사
+
+- 사용자가 "복사해줘"처럼 클립보드 복사를 요청하면 `/c/apps/bin/clip.exe`(ucopy)를 쓴다. cmd.exe 코드페이지와 무관하게 UTF-8 로 처리하므로 한글 경로·파일명·본문이 깨지지 않는다.
+  - 복사: `printf '%s' "텍스트" | /c/apps/bin/clip.exe`  (`-n` 은 앞뒤 개행 제거). 파일 내용은 `/c/apps/bin/clip.exe < 파일`.
+  - 붙여넣기(클립보드 읽기): `/c/apps/bin/clip.exe -p` (`-n` 으로 개행 제거).
+- 시스템의 `clip`/`clip.exe`(PATH)·`powershell Set-Clipboard`·`pbcopy` 는 한글이 깨지므로 쓰지 않는다.
+- 훅·플러그인(path-links, table-copy 등)에서 복사할 때도 같은 도구를 쓴다 (`$.process.run(['C:/apps/bin/clip.exe'], { stdin })`, 실패 시 `$.ui.copy` 폴백).
+
+
 ## 프로젝트 내 파일 이동 및 복사
 
 <CRITICAL>
