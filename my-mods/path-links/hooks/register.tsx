@@ -7,6 +7,23 @@ const DEFAULT_EDITOR = EDITOR_EXE
 // 이미지 뷰어 실행 파일 이름 (편집기와 같은 방식으로 scoop shims 등에서 찾는다)
 const VIEWER_EXE = 'irfanview.exe'
 const DEFAULT_VIEWER = VIEWER_EXE
+// UTF-8 클립보드 도구(ucopy). 코드페이지와 무관하게 한글 경로를 그대로 복사한다. stdin 으로 받는다.
+const UCOPY = 'C:/apps/bin/clip.exe'
+
+// ucopy 로 복사하고, 실패하면 엔진의 $.ui.copy 로 되돌아간다
+async function copyText(
+  $: EngineInterface,
+  text: string,
+  surface: Parameters<EngineInterface['ui']['copy']>[0]['surface']
+): Promise<{ isCopied: boolean; reason?: string }> {
+  try {
+    const r = await $.process.run([UCOPY, '-n'], { stdin: text })
+    if (r.exitCode === 0) return { isCopied: true }
+  } catch {
+    // 아래 폴백으로
+  }
+  return $.ui.copy({ text, surface })
+}
 
 // session-env.sh 의 `EXTRA_PATH='/c/Python/...:/c/...'`(scoop 제외 정적 경로) → Windows 폴더 목록 (`C:\Python\Python315`, ...)
 export const parseExtraPath = (shText: string): string[] => {
@@ -341,7 +358,7 @@ async function openPath(
     }
     const plan = planOpen(st, path, stat.kind === 'dir', line, col, action)
     if (plan.kind === 'copydir') {
-      const r = await $.ui.copy({ text: plan.text, surface })
+      const r = await copyText($, plan.text, surface)
       $.ui.toast(r.isCopied ? `경로 복사됨: ${plan.text}` : `복사 실패: ${r.reason}`)
       return
     }
