@@ -10,6 +10,9 @@ done
 # 정적 도구 경로(register.tsx 가 이 줄을 파싱한다 — 리터럴 유지)
 EXTRA_PATH='/c/Python/Python315:/c/Program Files/nodejs'
 [ -n "$scoop_root" ] && EXTRA_PATH="$scoop_root/shims:$EXTRA_PATH"
+# Rust(rustup-gnu)와 링커 도구(dlltool·windres·gcc). mingw64 는 PATH 끝에 붙어 다른 도구를 가리지 않는다.
+[ -n "$scoop_root" ] && [ -d "$scoop_root/persist/rustup-gnu/.cargo/bin" ] && EXTRA_PATH="$scoop_root/persist/rustup-gnu/.cargo/bin:$EXTRA_PATH"
+[ -d /c/msys64/mingw64/bin ] && EXTRA_PATH="$EXTRA_PATH:/c/msys64/mingw64/bin"
 
 # source 된 경우: 호출자 셸의 PATH 만 확장하고 돌아간다.
 if [ "${BASH_SOURCE[0]}" != "$0" ]; then
