@@ -100,16 +100,21 @@
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
   },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-subagent.sh"
+  },
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": false,
     "playground@claude-plugins-official": true,
     "smartship@synced": false,
     "txadmin@synced": false,
     "txinquiry@synced": false,
-    "path-links@sooop-mods": true,
     "table-copy@sooop-mods": true,
     "telegram-bridge@sooop-mods": true,
-    "agent-view-band@sooop-mods": true
+    "agent-view-band@sooop-mods": true,
+    "path-links@sooop-mods": true,
+    "lua-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "sooop-mods": {
@@ -145,11 +150,18 @@
       "options": {
         "chatId": "-1001243676050"
       }
+    },
+    "path-links@sooop-mods": {
+      "options": {
+        "editorArgs": "/n",
+        "extensions": "md,json,txt,html,csv",
+        "resolveFileNames": true
+      }
     }
   },
   "autoUpdatesChannel": "latest",
   "skipWorkflowUsageWarning": true,
-  "theme": "dark",
+  "theme": "light",
   "skipAutoPermissionPrompt": true,
   "autoMode": {
     "soft_deny": [
@@ -183,9 +195,5 @@
       "**Org-specific CLIs**: None configured",
       "routine under C:\\projects\\tx-front-react\\ prefix: fd/rg file search, npm/npx script runs (dev, build, lint, test, extract-i18n, validate-i18n), Redmine issue lookups via ../redmine-db-notify"
     ]
-  },
-  "subagentStatusLine": {
-    "type": "command",
-    "command": "bash ~/.claude/statusline-subagent.sh"
   }
 }

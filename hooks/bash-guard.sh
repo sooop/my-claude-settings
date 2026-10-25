@@ -66,7 +66,8 @@ ask() {
   jq -nc --arg r "CLAUDE.md: $1 (3000번대 LISTEN 포트: ${ports:-없음}). 실행해도 될까요?" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"ask",permissionDecisionReason:$r}}'
   exit 0
 }
-# Next.js 프로젝트가 아니면 5번 규칙을 건너뛴다(확장 프로젝트 등). cd/--prefix/-C 가 있으면 폴더를 알 수 없으므로 Next.js 로 본다.
+# Next.js 프로젝트가 아니면(브라우저 확장 등) .next·dev 서버 걱정이 없으므로 아래 확인을 건너뛴다.
+# cwd 가 Next.js 프로젝트이거나, 명령이 다른 폴더로 옮겨 가는지(cd, --prefix, -C) 알 수 없으면 그대로 묻는다.
 is_next_project() {
   [[ $SCAN =~ (^|[[:space:]\;\&\|])cd[[:space:]] || $SCAN =~ --prefix || $SCAN =~ [[:space:]]-C[[:space:]] ]] && return 0
   local d=${HOOK_CWD:-$PWD}
