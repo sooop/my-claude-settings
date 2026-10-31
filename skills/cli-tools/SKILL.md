@@ -9,7 +9,7 @@ description: CLI 도구를 고르거나 쓰기 전에 보는 지침. rg·fd·ast
 - **파일 탐색은 목적에 따라 나눈다.** 추적 파일만 필요하면 `git ls-files`(실측 73ms, `fd` 96ms로 1.31배 빠름·결과 동일), 무시 대상·미추적까지 훑거나 `-x`/`-X` 실행이 필요하면 `fd`.
 - **파일을 항목별로 반복 처리하는 일은 `nu` 를 우선한다.** 파일마다 열어서 판정·추출·존재확인을 해야 하면 셸 루프(`for`/`while`/`fd -x`) 대신 `nu` 로 한 프로세스 안에서 끝낸다 — Windows 는 프로세스 스폰 고정비가 커서 항목 수에 그대로 비례한다(실측: 링크 1,576건 확인이 bash 루프 120초 초과 타임아웃 vs nu 2.7초, BOM 검사 4,865파일이 `fd -X file` 28.5초 vs nu 4.1초). 예외와 함정은 아래 「`nu` 를 쓰는 자리」 참고.
 - **문자열 검색은 `rg`.** `git grep` 보다 1.5배 빠르다(실측 138ms vs 207ms).
-- **구조적 검색·구문 인식이 필요한 코드 변경은 `ast-grep`.** 단순 문자열·정규식 치환은 코드 파일이라도 `sed`(우선)/`sd` 를 써도 된다.
+- **소스 코드 변경은 `ast-grep`, 그 밖의 텍스트 치환은 `nu ~/.claude/scripts/replace.nu`.** `sd` 는 쓰지 않는다 — CRLF 파일에서 `$`·여러 줄 패턴이 0건 매치돼도, UTF-16 파일에서도 exit 0 으로 조용히 끝나 재시도·우회로 시간을 잃는다. `replace.nu` 는 CRLF 를 정규화·복원하고, UTF-16 은 건너뛰며, 0건이면 exit 1 로 실패한다. `sed` 도 같은 줄끝 함정이 있어 일괄 치환에는 지양한다.
 - **파일 2개 이상을 고친 뒤 회귀를 검수할 때는 `git diff` 대신 `difft`를 먼저 본다.** 포맷 변경과 의미 변경이 섞이면 텍스트 diff로는 구분할 수 없다. 공백만 바뀐 경우 `difft`는 `No syntactic changes.`를 출력한다. (실측: 들여쓰기만 바뀐 492줄 파일이 `git diff` 1,016줄 → `difft` 2줄. 포맷+의미가 섞이면 1,016줄 → 40줄.)
 - **`dyff between` 은 YAML·구조가 같은 설정 파일 비교에만 쓴다.** 값이 대부분 다른 파일(로케일 JSON 등)에 쓰면 출력이 오히려 늘어난다(실측 8,444줄 vs `git diff` 3,703줄).
 - **`.docx`/`.pdf`/`.xlsx` 내용을 검색해야 하면 `rga`를 쓴다.** `rg`는 `binary file matches`만 출력한다.
@@ -38,7 +38,8 @@ description: CLI 도구를 고르거나 쓰기 전에 보는 지침. rg·fd·ast
 | 설정·API 응답 구조 diff (사람이 리뷰) | `dyff` | 타입 변경·순서 변경을 명시적으로 분류 |
 | JSON 패치 생성·적용 (기계가 적용) | `jd` | RFC 6902 JSON Patch |
 | 인코딩 정규화 | `iconv` | |
-| 텍스트 치환 | `sed`(우선) / `sd` | 코드 파일에도 가능. 구문 인식이 필요하면 `ast-grep`. UTF-16 파일 주의(아래 CRITICAL) |
+| 소스 코드 치환 | `ast-grep` | 구문 단위 매치라 줄끝(CRLF) 무관 |
+| 그 외 텍스트 치환 | `nu ~/.claude/scripts/replace.nu` | `<패턴> <치환> <파일...> [--regex] [--dry-run] [--allow-zero]`. CRLF 정규화·복원, UTF-16 건너뜀, 0건이면 exit 1, 파일별 건수 TSV 출력. **`sd` 사용 금지** |
 | docx/pdf/zip 내부 검색 | `rga` | 해당 문서가 실제로 있을 때만 — 순수 코드 저장소에서는 대상이 0건이다 |
 | 오탈자 스윕 | `typos` | `_typos.toml` 허용목록이 있는 저장소에 한정 |
 | 성능 비교 | `hyperfine` | Windows 에서는 `--shell=bash` 를 붙일 것(기본 셸에서 인용부호가 깨져 exit 2) |
@@ -76,12 +77,13 @@ description: CLI 도구를 고르거나 쓰기 전에 보는 지침. rg·fd·ast
 - 기동 비용은 약 60ms(bash 30ms 의 2배)다. 한 번 호출로 끝내는 일에는 무시할 수준이지만, **`nu` 를 루프 안에서 부르면 원래 문제로 돌아간다.**
 
 <CRITICAL>
-- **`sd`는 UTF-16 파일에서 경고 없이 아무 일도 하지 않고 exit 0을 반환한다.** sd에는 인코딩/바이너리 관련 플래그가 없다(1.1.0까지 확인. 바이너리는 `--version`에서 1.0.0으로 잘못 보고한다). **주로 레거시 .NET 저장소(QxFront·legacy-backend 등)에서 발생하며, Next.js 쪽 저장소는 실측 0건이었다.** 일괄 치환 전 아래로 선별·정규화한다.
+- **`sd` 는 쓰지 않는다.** UTF-16 파일은 경고 없이 아무 일도 하지 않고 exit 0 을 반환하고(인코딩 플래그 없음), CRLF 파일에서는 `$`·여러 줄 패턴이 0건 매치돼도 역시 exit 0 이다. 실패를 알아채고 재시도·우회하는 시간 손실이 성능 이득보다 크다. 치환은 `ast-grep`(소스 코드) 또는 `replace.nu`(그 외)로 한다. `replace.nu` 는 UTF-16 을 스스로 걸러 보고하지만, **레거시 .NET 저장소(QxFront·legacy-backend 등)** 에서는 아래로 미리 선별·정규화한 뒤 치환한다(인코딩 변환 파일은 전체가 diff 로 잡힌다).
   ```nu
   # 1) UTF-16 파일 색출 — nu 안에서 바이트를 직접 읽는다(외부 프로세스 스폰 0)
+  # 주의: nu 의 범위는 끝을 포함한다. 0..2 는 3바이트라 BOM(2바이트)과 절대 같지 않다 — 반드시 0..<2.
   ^git ls-files -- '*.ts' '*.tsx' '*.cs' '*.sql'
   | lines
-  | where {|f| (try { open --raw $f | bytes at 0..2 } catch { 0x[] }) in [0x[FF FE], 0x[FE FF]] }
+  | where {|f| (try { open --raw $f | bytes at 0..<2 } catch { 0x[] }) in [0x[FF FE], 0x[FE FF]] }
   ```
   ```bash
   # nu 가 없으면: 배치 실행(-X)으로 file 에 한 번에 넘긴다 (느리지만 동작함)
