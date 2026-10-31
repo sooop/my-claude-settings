@@ -19,7 +19,7 @@
 - 도구를 꺼내기 전에 `package.json` 의 scripts 를 먼저 본다. 검색은 `rg`, 탐색은 `fd`/`git ls-files`, 구조적 코드 변경은 `ast-grep`(별칭 `sg` 금지), 회귀 검수는 `difft`, 중첩 JSON은 `jq`.
 - 항목마다 프로세스를 띄워야 하는 반복 처리는 셸 루프 대신 `nu`. 도구별 관할·함정은 도구를 고르기 전에 `cli-tools` 스킬로 확인한다.
 - `duckdb` 는 항상 `-c`/`-f`, `fzf` 는 `--filter` 만 쓴다. 이 둘과 `fd -x sh -c` 는 `bash-guard.sh` 가 차단한다(부득이하면 명령 끝에 `# guard-off`).
-- `sd` 는 UTF-16 파일에서 경고 없이 아무 일도 하지 않는다 — 일괄 치환 전 `cli-tools` 스킬의 UTF-16 점검을 따른다.
+- **`sd` 는 쓰지 않는다**(CRLF·UTF-16 에서 조용히 0건 치환). 소스 코드 변경은 `ast-grep`, 그 밖의 텍스트 치환은 `nu ~/.claude/scripts/replace.nu <패턴> <치환> <파일...> [--regex] [--dry-run]` — CRLF 보존, UTF-16 건너뜀, 0건이면 exit 1. 상세는 `cli-tools` 스킬.
 - PATH(scoop·python·nodejs)는 SessionStart 훅 `session-env.sh` 가 추가한다.
 
 ## 클립보드 복사

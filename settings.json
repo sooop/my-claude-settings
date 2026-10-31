@@ -21,7 +21,6 @@
       "Bash(ls:*)",
       "Bash(python:*)",
       "Bash(rg:*)",
-      "Bash(sd:*)",
       "Bash(sed:*)",
       "Bash(taskkill:*)",
       "Bash(tasklist:*)",
