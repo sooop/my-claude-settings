@@ -50,6 +50,7 @@ remote-settings.json
 plugins/plugin-catalog-cache.json
 plugins/synced/
 skills/synced/
+skills/.trash
 
 # 머신별 로컬 오버라이드 (공유 금지)
 settings.local.json
