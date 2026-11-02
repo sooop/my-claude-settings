@@ -9,7 +9,11 @@ for c in "${SCOOP:+$(cygpath -u "$SCOOP" 2>/dev/null)}" "$HOME/scoop" /d/scoop /
 done
 # 정적 도구 경로(register.tsx 가 이 줄을 파싱한다 — 리터럴 유지)
 EXTRA_PATH='/c/Python/Python315:/c/Program Files/nodejs'
-[ -n "$scoop_root" ] && EXTRA_PATH="$scoop_root/shims:$EXTRA_PATH"
+[ -n "$scoop_root" ] && EXTRA_PATH="$scoop_root/shims:$scoop_root/apps/rustup-gnu/current/.cargo/bin:$EXTRA_PATH"
+# rustup-gnu(scoop): cargo·rustc 는 shims 에 없고 persist 의 .cargo/bin 에 있다
+if [ -n "$scoop_root" ] && [ -d "$scoop_root/persist/rustup-gnu/.cargo/bin" ]; then
+  EXTRA_PATH="$scoop_root/persist/rustup-gnu/.cargo/bin:$EXTRA_PATH"
+fi
 
 # source 된 경우: 호출자 셸의 PATH 만 확장하고 돌아간다.
 if [ "${BASH_SOURCE[0]}" != "$0" ]; then
