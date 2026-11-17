@@ -9,7 +9,7 @@ if [ "$MODEL" = "haiku" ]; then  # 티어 에이전트에 명시해도 frontmatt
   jq -nc '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:"model=haiku 별칭은 Haiku 4.5(느리고 비쌈)로 해석된다. 수집·추적·집계는 scout, 범위가 정해진 구현은 builder 티어 에이전트(Haiku 5.5)를 model 없이 쓸 것. 기준: agent-routing 스킬."}}'
   exit 0
 fi
-case "$TYPE" in scout|builder|worker|verifier|deep-reasoner|git-commiter|plan-planter|statusline-setup|claude-code-guide|fork) exit 0 ;; esac
+case "$TYPE" in scout|builder|worker|verifier|deep-reasoner|git-commiter|statusline-setup|claude-code-guide|fork) exit 0 ;; esac
 [ "$MODEL" != "-" ] && exit 0
 printf '%s' "$IN" | jq -c '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"allow",permissionDecisionReason:"model 미지정 → sonnet 기본(CLAUDE.md)",updatedInput:(.tool_input + {model:"sonnet"})}}' 2>/dev/null || exit 0
 exit 0

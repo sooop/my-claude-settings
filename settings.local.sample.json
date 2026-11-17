@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "sooop-mods": {
+      "source": {
+        "source": "directory",
+        "path": "C:\Users\<계정명>\.claude\my-mods"
+      }
+    }
+  }
+}
