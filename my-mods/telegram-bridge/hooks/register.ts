@@ -118,10 +118,34 @@ async function show($: EngineInterface, cfg: Config, item: Item, n: number, with
 /** 파일을 그대로(바이너리 포함) 보낸다. 토큰은 argv 에 남지 않게 curl 설정을 stdin 으로 넘긴다. */
 async function sendFile($: EngineInterface, cfg: Config, path: string, caption: string): Promise<string> {
   const name = path.split(/[\\/]/).pop() ?? 'file'
-  const run = await $.process.run(
-    ['curl', '-sS', '-K', '-', '-F', `chat_id=${cfg.chatId}`, '-F', `caption=${caption.slice(0, 1000)}`, '-F', `document=@${path};filename=${name}`],
-    { stdin: `url = "https://api.telegram.org/bot${cfg.token}/sendDocument"\n`, timeoutMs: 120000 },
-  )
+  // Windows curl 은 비ASCII 경로의 파일을 열지 못한다(curl 26). 해시 이름의 임시 파일로 복사해 보내고,
+  // 텔레그램에는 filename= 으로 원래 이름(UTF-8)을 붙인다.
+  let src = path
+  let tmp: string | undefined
+  if (/[^\x00-\x7f]/.test(path)) {
+    const dir = ((await $.env.get('TEMP')) ?? (await $.env.get('TMP')) ?? '.').replace(/[\\/]+$/, '')
+    const ext = /\.[A-Za-z0-9]{1,10}$/.exec(name)?.[0] ?? ''
+    tmp = `${dir}\\tgsend-${Math.random().toString(36).slice(2, 12)}${ext}`
+    const cp = await $.process.run(['cmd', '/c', 'copy', '/y', '/b', path, tmp], { timeoutMs: 60000 })
+    if (cp.exitCode !== 0) {
+      return `전송 실패: 임시 복사 실패 (copy ${cp.exitCode})`
+    }
+    src = tmp
+  }
+  // curl 은 Windows 에서 argv 를 ANSI 로 받아 한글이 깨지므로(`?`), 한글이 들어가는 값은 모두 UTF-8 설정(stdin)으로 넘긴다.
+  const q = (v: string): string => v.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\r/g, '\\r').replace(/\n/g, '\\n')
+  const sendName = name.replace(/["';]/g, '_')
+  const run = await $.process.run(['curl', '-sS', '-K', '-'], {
+    stdin:
+      `url = "https://api.telegram.org/bot${cfg.token}/sendDocument"\n` +
+      `form-string = "chat_id=${q(String(cfg.chatId))}"\n` +
+      `form-string = "caption=${q(caption.slice(0, 1000))}"\n` +
+      `form = "document=@${q(src.replace(/\\/g, '/'))};filename=${q(sendName)}"\n`,
+    timeoutMs: 120000,
+  })
+  if (tmp !== undefined) {
+    await $.process.run(['cmd', '/c', 'del', '/q', tmp], { timeoutMs: 10000 })
+  }
   if (run.exitCode !== 0) {
     return `전송 실패 (curl ${run.exitCode}): ${run.stderr.replaceAll(cfg.token, '***').slice(0, 200)}`
   }

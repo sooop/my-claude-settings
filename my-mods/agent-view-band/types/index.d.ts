@@ -1,4 +1,4 @@
-export type AgentModel = { model: string; effort?: string | number }
+export type AgentModel = { model: string; effort?: string | number; tokens?: number; window?: number }
 
 declare module 'claude-code' {
   interface PluginState {

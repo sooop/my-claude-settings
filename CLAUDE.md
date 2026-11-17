@@ -20,8 +20,17 @@
 - 도구를 꺼내기 전에 `package.json` 의 scripts 를 먼저 본다. 검색은 `rg`, 탐색은 `fd`/`git ls-files`, 구조적 코드 변경은 `ast-grep`(별칭 `sg` 금지), 회귀 검수는 `difft`, 중첩 JSON은 `jq`.
 - 항목마다 프로세스를 띄워야 하는 반복 처리는 셸 루프 대신 `nu`. 도구별 관할·함정은 도구를 고르기 전에 `cli-tools` 스킬로 확인한다.
 - `duckdb` 는 항상 `-c`/`-f`, `fzf` 는 `--filter` 만 쓴다. 이 둘과 `fd -x sh -c` 는 `bash-guard.sh` 가 차단한다(부득이하면 명령 끝에 `# guard-off`).
-- `sd` 는 UTF-16 파일에서 경고 없이 아무 일도 하지 않는다 — 일괄 치환 전 `cli-tools` 스킬의 UTF-16 점검을 따른다.
+- **`sd` 는 쓰지 않는다**(CRLF·UTF-16 에서 조용히 0건 치환). 소스 코드 변경은 `ast-grep`, 그 밖의 텍스트 치환은 `nu ~/.claude/scripts/replace.nu <패턴> <치환> <파일...> [--regex] [--dry-run]` — CRLF 보존, UTF-16 건너뜀, 0건이면 exit 1. 상세는 `cli-tools` 스킬.
 - PATH(scoop·python·nodejs)는 SessionStart 훅 `session-env.sh` 가 추가한다.
+
+## 클립보드 복사
+
+- 사용자가 "복사해줘"처럼 클립보드 복사를 요청하면 `/c/apps/bin/clip.exe`(ucopy)를 쓴다. cmd.exe 코드페이지와 무관하게 UTF-8 로 처리하므로 한글 경로·파일명·본문이 깨지지 않는다.
+  - 복사: `printf '%s' "텍스트" | /c/apps/bin/clip.exe`  (`-n` 은 앞뒤 개행 제거). 파일 내용은 `/c/apps/bin/clip.exe < 파일`.
+  - 붙여넣기(클립보드 읽기): `/c/apps/bin/clip.exe -p` (`-n` 으로 개행 제거).
+- 시스템의 `clip`/`clip.exe`(PATH)·`powershell Set-Clipboard`·`pbcopy` 는 한글이 깨지므로 쓰지 않는다.
+- 훅·플러그인(path-links, table-copy 등)에서 복사할 때도 같은 도구를 쓴다 (`$.process.run(['C:/apps/bin/clip.exe'], { stdin })`, 실패 시 `$.ui.copy` 폴백).
+
 
 ## 프로젝트 내 파일 이동 및 복사
 
@@ -52,6 +61,7 @@
 
 ## 개발 서버 (사용자가 `npm run dev:https` 로 직접 관리)
 
-- 개발 서버를 임의로 실행하지 않는다. `rm -rf .next`·`npm run build` 같은 `.next` 재생성 명령과 `npm run dev*` 는 `bash-guard.sh` 가 포트 점유 상태를 보여주며 사용자 확인(ask)을 요구한다.
+- 개발 서버를 임의로 실행하지 않는다. `rm -rf .next` 와 `npm run dev*`(포트 미지정)는 `bash-guard.sh` 가 포트 점유 상태를 보여주며 사용자 확인(ask)을 요구한다. 이 확인은 Next.js 프로젝트(cwd 에 `next.config.*` 또는 package.json 에 `"next":`)에서만 적용되며, 확장 등 그 밖의 프로젝트는 묻지 않는다.
+- `npm run build` 는 훅이 묻지 않는다(사용자 결정). 단 Next.js 프로젝트에서는 dev 서버가 떠 있으면 `.next` 가 재생성되어 서버가 깨질 수 있으므로, 빌드 전에 `netstat -ano` 로 서버 가동 여부를 직접 확인한다.
 - 서버가 필요하면 먼저 `netstat -ano` 로 포트 점유를 확인하고 떠 있는 서버를 쓴다. 검증은 `npx tsc --noEmit` 을 우선하고, 불가피하면 `next dev -p <다른 포트>` 로 격리한다.
 - HTTPS 전용 스크립트(`dev:https` 등)가 있는 프로젝트는 로컬 테스트 문서나 관련 스킬을 먼저 확인해 일반 `dev` 대신 써야 하는지 판단한다.

@@ -13,7 +13,12 @@ async function copy(
   name: string,
   label: string,
 ): Promise<string> {
-  const result = await $.ui.copy({ text })
+  // UTF-8 클립보드 도구(ucopy)를 먼저 쓰고, 실패하면 엔진의 $.ui.copy 로 되돌아간다
+  const result = await $.process
+    .run(['C:/apps/bin/clip.exe'], { stdin: text })
+    .then(r => (r.exitCode === 0 ? { isCopied: true as const } : undefined))
+    .catch(() => undefined)
+    .then(r => r ?? $.ui.copy({ text }))
   const message = result.isCopied
     ? `${name}을(를) ${label}로 복사했습니다`
     : `복사 실패: ${result.reason}`

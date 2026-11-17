@@ -11,7 +11,7 @@ const props = (agentId?: string) => ({
 
 test('메인 화면에서는 표시하지 않고, 에이전트 화면에서는 이름·모델·effort 를 표시한다', async ($, on) => {
   on('turn.step', async function* (_$, e) {
-    return { turnId: e.turnId, index: e.index, answer: '', toolUses: [], stopReason: 'end_turn', usage: null }
+    return { turnId: e.turnId, index: e.index, answer: '', toolUses: [], stopReason: 'end_turn', usage: { model: 'claude-sonnet-5-5', input_tokens: 1000, output_tokens: 500, cache_read_input_tokens: 48500, cache_creation_input_tokens: 0 } }
   })
   // 엔진 기본 밴드(빈 상자) 대역
   on('ui.render', ($, e) => {

@@ -11,7 +11,9 @@
 # 외장 도구 PATH 는 session-env.sh 가 정본 — 여기서 경로를 중복 정의하지 않는다.
 source "$(dirname "${BASH_SOURCE[0]}")/session-env.sh" 2>/dev/null
 
-CMD=$(jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
+INPUT=$(cat)
+CMD=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
+HOOK_CWD=$(printf '%s' "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)
 [ -z "$CMD" ] && exit 0
 
 # 명시적 탈출구: 명령에 '# guard-off' 를 넣으면 모든 검사를 건너뛴다.
@@ -64,9 +66,19 @@ ask() {
   jq -nc --arg r "CLAUDE.md: $1 (3000번대 LISTEN 포트: ${ports:-없음}). 실행해도 될까요?" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"ask",permissionDecisionReason:$r}}'
   exit 0
 }
-if at_cmd_pos '(npm|pnpm|yarn)[[:space:]]+(run[[:space:]]+)?build' || at_cmd_pos '(npx[[:space:]]+)?next[[:space:]]+build' \
-   || [[ $SCAN =~ ${SEP}rm[[:space:]][^|\;\&]*\.next ]]; then
-  ask ".next 를 재생성/삭제하는 명령은 실행 중인 dev 서버의 매니페스트를 깨뜨린다"
+# Next.js 프로젝트가 아니면 5번 규칙을 건너뛴다(확장 프로젝트 등). cd/--prefix/-C 가 있으면 폴더를 알 수 없으므로 Next.js 로 본다.
+is_next_project() {
+  [[ $SCAN =~ (^|[[:space:]\;\&\|])cd[[:space:]] || $SCAN =~ --prefix || $SCAN =~ [[:space:]]-C[[:space:]] ]] && return 0
+  local d=${HOOK_CWD:-$PWD}
+  compgen -G "$d/next.config.*" >/dev/null 2>&1 && return 0
+  grep -qE '"next"[[:space:]]*:' "$d/package.json" 2>/dev/null && return 0
+  return 1
+}
+is_next_project || exit 0
+
+# build 는 묻지 않는다(사용자 결정). .next 를 직접 지우는 명령만 확인한다.
+if [[ $SCAN =~ ${SEP}rm[[:space:]][^|\;\&]*\.next ]]; then
+  ask ".next 를 삭제하는 명령은 실행 중인 dev 서버의 매니페스트를 깨뜨린다"
 fi
 if at_cmd_pos '(npm|pnpm|yarn)[[:space:]]+(run[[:space:]]+)?dev(:[a-z]+)?' || at_cmd_pos '(npx[[:space:]]+)?next[[:space:]]+dev'; then
   [[ $SCAN =~ (-p|--port)[[:space:]=]*[0-9] ]] || ask "개발 서버는 사용자가 직접 관리한다(이미 떠 있으면 그 서버를 쓸 것)"
