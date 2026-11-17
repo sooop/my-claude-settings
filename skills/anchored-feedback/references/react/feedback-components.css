@@ -1,0 +1,42 @@
+/* 이 프로젝트에서 실행 검증하지 않음 — 처음 적용할 때 타입체크와 테스트로 확인할 것 */
+/* React 컴포넌트용 클래스. svelte5 컴포넌트의 <style> 블록을 전역 클래스로 옮긴 것(feedback.css 와 함께 쓴다). */
+
+.fb-notice { flex: none; }
+.fb-notice-line { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--fb-soft); font-size: 11.5px; color: var(--text); min-width: 0; }
+.fb-notice.bottom .fb-notice-line { border-top: 1px solid var(--fb-line); }
+.fb-notice.top .fb-notice-line { border-bottom: 1px solid var(--fb-line); }
+.fb-loc { flex: none; font-family: var(--font-mono); font-size: 10.5px; color: var(--fb-c); background: var(--bg-raised); border: 1px solid var(--fb-line); padding: 0 6px; border-radius: 3px; }
+.fb-msg { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fb-detail { color: var(--text-dim); font-size: 11.5px; line-height: 1.5; overflow-wrap: anywhere; }
+.fb-cnt { flex: none; font-size: 10.5px; color: var(--fb-c); animation: fb-shake 320ms var(--ease); }
+.fb-cnt-pill { font-size: 10.5px; font-weight: 600; color: var(--fb-c); background: var(--fb-soft); padding: 0 6px; border-radius: 9px; animation: fb-shake 320ms var(--ease); }
+@keyframes fb-shake { 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+.fb-grow { flex: 1; }
+.fb-more { flex: none; color: var(--text-faint); }
+.fb-act { flex: none; color: var(--text-dim); }
+.fb-act:hover { color: var(--text); }
+.fb-act.primary { color: var(--accent); font-weight: 600; }
+.fb-x { flex: none; color: var(--text-faint); font-size: 14px; line-height: 1; padding: 0 2px; }
+.fb-x:hover { color: var(--text); }
+
+/* 팝오버·트레이 본문 */
+.fb-head { display: flex; gap: 10px; align-items: flex-start; padding: 10px 10px 9px 12px; }
+.fb-ic { flex: none; width: 17px; height: 17px; margin-top: 1px; border-radius: 50%; background: var(--fb-c); color: var(--bg-raised); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.fb-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.fb-row { display: flex; align-items: center; gap: 8px; }
+.fb-row b { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.fb-reassure { font-size: 11px; color: var(--text-faint); }
+.fb-acts { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 12px 8px 39px; border-top: 1px solid var(--border-soft); font-size: 11.5px; }
+
+.fb-pop { position: fixed; z-index: var(--z-feedback); width: min(360px, calc(100vw - 16px)); background: var(--bg-raised); border: 1px solid var(--fb-line); border-radius: 8px; box-shadow: var(--shadow-pop); animation: fb-rise 160ms var(--ease); }
+@keyframes fb-rise { from { opacity: 0; transform: translateY(4px); } }
+.fb-tail { position: absolute; width: 9px; height: 9px; background: var(--bg-raised); border: 1px solid var(--fb-line); transform: rotate(45deg); }
+.fb-pop.below .fb-tail { top: -5px; border-right: 0; border-bottom: 0; }
+.fb-pop:not(.below) .fb-tail { bottom: -5px; border-left: 0; border-top: 0; }
+
+.fb-tray { position: fixed; left: 12px; bottom: 12px; z-index: var(--z-feedback); display: flex; flex-direction: column; align-items: flex-start; gap: 6px; width: min(420px, calc(100vw - 24px)); pointer-events: none; }
+.fb-tray > * { pointer-events: auto; }
+.fb-detail-box { width: 100%; background: var(--bg-raised); border: 1px solid var(--fb-line); border-radius: 8px; box-shadow: var(--shadow-pop); animation: fb-rise 160ms var(--ease); }
+.fb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.fb-chip { display: flex; align-items: center; gap: 6px; max-width: 100%; padding: 3px 10px 3px 8px; background: var(--bg-raised); border: 1px solid var(--fb-line); border-radius: 12px; box-shadow: var(--shadow-pop); color: var(--fb-c); font-size: 11.5px; font-weight: 600; }
+.fb-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--fb-c); }
